@@ -196,5 +196,8 @@ FakesAssemblies/
 *.opt
 
 # Project specific
-glfw-build
-build
+glfw-Win32
+glfw-x64
+mercury-Win32
+mercury-x64
+mercury.sublime-workspace
