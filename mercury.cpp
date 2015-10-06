@@ -1,7 +1,14 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include <stdint.h>
+
 #include "mercury.h"
+#include "mercury-math.h"
+#include "mercury-program.h"
 
 #include "glad.c"
 
@@ -51,8 +58,8 @@ void main() {
 			glEnable( GL_DEBUG_OUTPUT );
 			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
 
-			printf("hoi!\n");
-
+			
+			LoadProgram();
 			EnterWindowLoop();
 
 		} else {
@@ -76,7 +83,7 @@ void EnterWindowLoop() {
 		glfwPollEvents();
 		//mj::Input::Tick();
 
-		//world->Tick();
+		Tick();
 		//mj::Input::PostTick();
 		glfwSwapBuffers( s_window );
 	}
@@ -88,5 +95,5 @@ void EnterWindowLoop() {
 }
 
 void Tick() {
-	
+	glClear(GL_COLOR_BUFFER_BIT);
 }
