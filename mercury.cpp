@@ -77,7 +77,8 @@ void main() {
 	/************************************************************************/
 	/* OpenGL                                                               */
 	/************************************************************************/
-		if ( gladLoadGL() ) {
+		if ( gladLoadGLLoader((GLADloadproc) glfwGetProcAddress) ) {
+			printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
 			glEnable( GL_BLEND );
 			glEnable( GL_MULTISAMPLE );
 			glEnable( GL_CULL_FACE );
