@@ -2,3 +2,4 @@
 
 void Init();
 void Tick();
+void Destroy();
