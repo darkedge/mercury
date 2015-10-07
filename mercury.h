@@ -1,5 +1,2 @@
 #pragma once
-
-void EnterWindowLoop();
-void Tick();
-
+extern GLFWwindow *g_window;

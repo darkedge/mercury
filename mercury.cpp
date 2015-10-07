@@ -14,7 +14,8 @@
 #pragma warning( pop )
 
 #include "mercury.h"
-#include "mercury-math.h"
+#include "mercury-input.cpp"
+#include "mercury-game.cpp"
 #include "mercury-program.h"
 
 // Tell Optimus to use the high-performance NVIDIA processor
@@ -23,10 +24,32 @@ extern "C" {
 	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
 
-GLFWwindow *s_window;
+GLFWwindow *g_window;
 int s_width = 1280;
 int s_height = 720;
 const char *name = "Hello World!";
+
+void EnterWindowLoop() {
+	double lastTime = glfwGetTime();
+	while ( !glfwWindowShouldClose( g_window ) )
+	{
+		double now = glfwGetTime();
+		//SetDeltaTime( (float) ( now - lastTime ) );
+		lastTime = now;
+
+		glfwPollEvents();
+		//mj::Input::Tick();
+
+		Tick();
+		//mj::Input::PostTick();
+		glfwSwapBuffers( g_window );
+	}
+
+	glfwDestroyWindow( g_window );
+	glfwTerminate();
+
+	//std::exit( EXIT_SUCCESS );
+}
 
 void main() {
 	// glfwSetErrorCallback( GlfwErrorCallback );
@@ -37,16 +60,16 @@ void main() {
 		glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 5 );
 		glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-		s_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
-		glfwMakeContextCurrent( s_window );
+		g_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
+		glfwMakeContextCurrent( g_window );
 
 		// TODO: Callbacks
-		// glfwSetKeyCallback( s_window, GlfwKeyCallBack );
-		// glfwSetMouseButtonCallback( s_window, GlfwMouseButtonCallback );
-		// glfwSetScrollCallback( s_window, GlfwScrollCallback );
-		// glfwSetCharCallback( s_window, GlfwCharCallback );
-		// glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
-		// glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
+		// glfwSetKeyCallback( g_window, GlfwKeyCallBack );
+		// glfwSetMouseButtonCallback( g_window, GlfwMouseButtonCallback );
+		// glfwSetScrollCallback( g_window, GlfwScrollCallback );
+		// glfwSetCharCallback( g_window, GlfwCharCallback );
+		// glfwSetCursorPosCallback( g_window, GlfwCursorPosCallback );
+		// glfwSetWindowSizeCallback( g_window, GlfwWindowSizeCallBack );
 
 		// Sync to monitor refresh rate
 		glfwSwapInterval( 1 );
@@ -82,30 +105,4 @@ void main() {
 		printf( "Failed to init GLFW!\n" );
 		// std::exit( EXIT_FAILURE );
 	}
-}
-
-void EnterWindowLoop() {
-	double lastTime = glfwGetTime();
-	while ( !glfwWindowShouldClose( s_window ) )
-	{
-		double now = glfwGetTime();
-		//SetDeltaTime( (float) ( now - lastTime ) );
-		lastTime = now;
-
-		glfwPollEvents();
-		//mj::Input::Tick();
-
-		Tick();
-		//mj::Input::PostTick();
-		glfwSwapBuffers( s_window );
-	}
-
-	glfwDestroyWindow( s_window );
-	glfwTerminate();
-
-	//std::exit( EXIT_SUCCESS );
-}
-
-void Tick() {
-	glClear(GL_COLOR_BUFFER_BIT);
 }

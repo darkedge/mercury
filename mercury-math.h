@@ -10,6 +10,34 @@ union float2 {
 	float cell[2];
 };
 
+inline float2 &
+operator+=(float2 &lhs, float2 rhs) {
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	return lhs;
+}
+
+inline float2 &
+operator-=(float2 &lhs, float2 rhs) {
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	return lhs;
+}
+
+inline float2
+operator+(float2 lhs, float2 rhs) {
+	float2 result = lhs;
+	result += rhs;
+	return result;
+}
+
+inline float2
+operator-(float2 lhs, float2 rhs) {
+	float2 result = lhs;
+	result -= rhs;
+	return result;
+}
+
 union float3 {
 	struct {
 		float x, y, z;
@@ -38,6 +66,36 @@ union float3 {
 	};
 	float cell[3];
 };
+
+inline float3 &
+operator+=(float3 &lhs, float3 rhs) {
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	lhs.z += rhs.z;
+	return lhs;
+}
+
+inline float3 &
+operator-=(float3 &lhs, float3 rhs) {
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	lhs.z -= rhs.z;
+	return lhs;
+}
+
+inline float3
+operator+(float3 lhs, float3 rhs) {
+	float3 result = lhs;
+	result += rhs;
+	return result;
+}
+
+inline float3
+operator-(float3 lhs, float3 rhs) {
+	float3 result = lhs;
+	result -= rhs;
+	return result;
+}
 
 union float4 {
 	struct {
@@ -77,6 +135,38 @@ union float4 {
 	};
 	float cell[4];
 };
+
+inline float4 &
+operator+=(float4 &lhs, float4 rhs) {
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	lhs.z += rhs.z;
+	lhs.w += rhs.w;
+	return lhs;
+}
+
+inline float4 &
+operator-=(float4 &lhs, float4 rhs) {
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	lhs.z -= rhs.z;
+	lhs.w -= rhs.w;
+	return lhs;
+}
+
+inline float4
+operator+(float4 lhs, float4 rhs) {
+	float4 result = lhs;
+	result += rhs;
+	return result;
+}
+
+inline float4
+operator-(float4 lhs, float4 rhs) {
+	float4 result = lhs;
+	result -= rhs;
+	return result;
+}
 
 struct mat4 {
 	float4 cell[4];
