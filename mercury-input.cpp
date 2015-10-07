@@ -2,21 +2,21 @@
 #include "mercury.h"
 
 // Keyboard
-bool prev[MC_NUM_KEYBOARD_KEYS];
-bool keys[MC_NUM_KEYBOARD_KEYS];
-bool down[MC_NUM_KEYBOARD_KEYS];
-bool up[MC_NUM_KEYBOARD_KEYS];
+static bool prev[MC_NUM_KEYBOARD_KEYS];
+static bool keys[MC_NUM_KEYBOARD_KEYS];
+static bool down[MC_NUM_KEYBOARD_KEYS];
+static bool up[MC_NUM_KEYBOARD_KEYS];
 
 // Mouse
-bool mousePrev[MC_NUM_MOUSE_BUTTONS];
-bool mouseButtons[MC_NUM_MOUSE_BUTTONS];
-bool mouseDown[MC_NUM_MOUSE_BUTTONS];
-bool mouseUp[MC_NUM_MOUSE_BUTTONS];
+static bool mousePrev[MC_NUM_MOUSE_BUTTONS];
+static bool mouseButtons[MC_NUM_MOUSE_BUTTONS];
+static bool mouseDown[MC_NUM_MOUSE_BUTTONS];
+static bool mouseUp[MC_NUM_MOUSE_BUTTONS];
 
-bool isMouseGrabbed;
-float2 lastMousePos;
-float2 mouseDelta;
-float2 mousePos;
+static bool isMouseGrabbed;
+static float2 lastMousePos;
+static float2 mouseDelta;
+static float2 mousePos;
 
 bool Input::GetKey( int key ) {
 	return keys[key];

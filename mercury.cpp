@@ -24,8 +24,8 @@ extern "C" {
 	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
 
-GLFWwindow *s_window;
-float s_deltaTime = 0.0f;
+static GLFWwindow *s_window;
+static float s_deltaTime = 0.0f;
 
 inline float GetDeltaTime() {
 	return s_deltaTime;
@@ -35,9 +35,9 @@ inline GLFWwindow *GetWindow() {
 	return s_window;
 }
 
-int s_width = 1280;
-int s_height = 720;
-const char *name = "Hello World!";
+static int s_width = 1280;
+static int s_height = 720;
+static const char *name = "Hello World!";
 
 void EnterWindowLoop() {
 	Init(); // Slow

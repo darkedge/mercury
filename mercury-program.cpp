@@ -2,9 +2,9 @@
 
 #define GL_TRY(x) x
 
-GLuint m_program;
-GLuint m_vertex;
-GLuint m_fragment;
+static GLuint m_program;
+static GLuint m_vertex;
+static GLuint m_fragment;
 
 void AttachShaderFromFile(GLuint *shader, const char *file, GLenum shaderType) {
 	int32_t size = 0;
