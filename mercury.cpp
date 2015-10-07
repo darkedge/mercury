@@ -24,28 +24,39 @@ extern "C" {
 	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
 
-GLFWwindow *g_window;
+GLFWwindow *s_window;
+float s_deltaTime = 0.0f;
+
+inline float GetDeltaTime() {
+	return s_deltaTime;
+}
+
+inline GLFWwindow *GetWindow() {
+	return s_window;
+}
+
 int s_width = 1280;
 int s_height = 720;
 const char *name = "Hello World!";
 
 void EnterWindowLoop() {
+	Init(); // Slow
 	double lastTime = glfwGetTime();
-	while ( !glfwWindowShouldClose( g_window ) )
+	while ( !glfwWindowShouldClose( s_window ) )
 	{
 		double now = glfwGetTime();
-		//SetDeltaTime( (float) ( now - lastTime ) );
+		s_deltaTime = (float) ( now - lastTime );
 		lastTime = now;
 
 		glfwPollEvents();
-		//mj::Input::Tick();
+		Input::Tick();
 
 		Tick();
-		//mj::Input::PostTick();
-		glfwSwapBuffers( g_window );
+		Input::PostTick();
+		glfwSwapBuffers( s_window );
 	}
 
-	glfwDestroyWindow( g_window );
+	glfwDestroyWindow( s_window );
 	glfwTerminate();
 
 	//std::exit( EXIT_SUCCESS );
@@ -60,16 +71,16 @@ void main() {
 		glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 5 );
 		glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-		g_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
-		glfwMakeContextCurrent( g_window );
+		s_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
+		glfwMakeContextCurrent( s_window );
 
 		// TODO: Callbacks
-		// glfwSetKeyCallback( g_window, GlfwKeyCallBack );
-		// glfwSetMouseButtonCallback( g_window, GlfwMouseButtonCallback );
-		// glfwSetScrollCallback( g_window, GlfwScrollCallback );
-		// glfwSetCharCallback( g_window, GlfwCharCallback );
-		// glfwSetCursorPosCallback( g_window, GlfwCursorPosCallback );
-		// glfwSetWindowSizeCallback( g_window, GlfwWindowSizeCallBack );
+		// glfwSetKeyCallback( s_window, GlfwKeyCallBack );
+		// glfwSetMouseButtonCallback( s_window, GlfwMouseButtonCallback );
+		// glfwSetScrollCallback( s_window, GlfwScrollCallback );
+		// glfwSetCharCallback( s_window, GlfwCharCallback );
+		// glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
+		// glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
 
 		// Sync to monitor refresh rate
 		glfwSwapInterval( 1 );
@@ -93,8 +104,6 @@ void main() {
 			glEnable( GL_DEBUG_OUTPUT );
 			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
 
-			
-			LoadProgram();
 			EnterWindowLoop();
 
 		} else {

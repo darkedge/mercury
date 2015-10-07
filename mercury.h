@@ -1,2 +1,3 @@
 #pragma once
-extern GLFWwindow *g_window;
+GLFWwindow * GetWindow();
+float GetDeltaTime();

@@ -116,8 +116,8 @@ void Input::PostTick() {
 void Input::SetMouseGrabbed( bool grabMouse ) {
 	isMouseGrabbed = grabMouse;
 	if ( isMouseGrabbed ) {
-		glfwSetInputMode( g_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+		glfwSetInputMode( GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED );
 	} else {
-		glfwSetInputMode( g_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+		glfwSetInputMode( GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL );
 	}
 }
