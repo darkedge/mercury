@@ -59,9 +59,6 @@ typedef void* (* GLADloadproc)(const char *name);
 #  define GLAPI extern
 # endif
 #endif
-
-GLAPI int gladLoadGL(void);
-
 GLAPI int gladLoadGLLoader(GLADloadproc);
 
 #include <stddef.h>
