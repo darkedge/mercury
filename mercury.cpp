@@ -1,16 +1,27 @@
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-#include <stdint.h>
+#include <codeanalysis/warnings.h>
+#pragma warning( push )
+  #pragma warning( disable : ALL_CODE_ANALYSIS_WARNINGS )
+  
+  #include "glad/glad.h"
+  #include "glad.c"
+  
+  #include "GLFW/glfw3.h"
+  
+  #define STB_IMAGE_IMPLEMENTATION
+  #include "stb_image.h"
+  
+  #include <stdint.h>
+#pragma warning( pop )
 
 #include "mercury.h"
 #include "mercury-math.h"
 #include "mercury-program.h"
 
-#include "glad.c"
+// Tell Optimus to use the high-performance NVIDIA processor
+// option if it's on auto-select (we cannot override it)
+extern "C" {
+	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
 
 GLFWwindow *s_window;
 int s_width = 1280;
@@ -63,11 +74,12 @@ void main() {
 			EnterWindowLoop();
 
 		} else {
-			// printf( "Failed to init glad!\n" );
+			printf( "Failed to init glad!\n" );
 			// std::exit( EXIT_FAILURE );
 		}
 
 	} else {
+		printf( "Failed to init GLFW!\n" );
 		// std::exit( EXIT_FAILURE );
 	}
 }
