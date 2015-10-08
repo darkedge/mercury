@@ -1,4 +1,5 @@
 #pragma once
+// TODO: Can we do Right-handed Z-up?
 
 union float2 {
 	struct {
