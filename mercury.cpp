@@ -26,6 +26,9 @@ extern "C" {
 
 static GLFWwindow *s_window;
 static float s_deltaTime = 0.0f;
+static int s_width = 1280;
+static int s_height = 720;
+static const char *s_name = "Hello World!";
 
 inline float GetDeltaTime() {
 	return s_deltaTime;
@@ -35,9 +38,11 @@ inline GLFWwindow *GetWindow() {
 	return s_window;
 }
 
-static int s_width = 1280;
-static int s_height = 720;
-static const char *name = "Hello World!";
+void CALLBACK debugCallbackARB( GLenum source, GLenum type, GLuint id, GLenum severity,
+	GLsizei length, const GLchar *message, GLvoid *userParam )
+{
+	printf( "%s\n", message );
+}
 
 void EnterWindowLoop() {
 	Init(); // Slow
@@ -71,7 +76,7 @@ void main() {
 		glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 5 );
 		glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-		s_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
+		s_window = glfwCreateWindow( s_width, s_height, s_name, nullptr, nullptr );
 		glfwMakeContextCurrent( s_window );
 
 		// TODO: Callbacks
@@ -85,9 +90,9 @@ void main() {
 		// Sync to monitor refresh rate
 		glfwSwapInterval( 1 );
 
-	/************************************************************************/
-	/* OpenGL                                                               */
-	/************************************************************************/
+		/************************************************************************/
+		/* OpenGL                                                               */
+		/************************************************************************/
 		if ( gladLoadGLLoader((GLADloadproc) glfwGetProcAddress) ) {
 			printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
 			glEnable( GL_BLEND );
@@ -100,7 +105,7 @@ void main() {
 			glDepthFunc( GL_LEQUAL );
 
 			// https://www.opengl.org/wiki/Debug_Output
-			// glDebugMessageCallback( (GLDEBUGPROC) debugCallbackARB, nullptr );
+			glDebugMessageCallback( (GLDEBUGPROC) debugCallbackARB, nullptr );
 			glEnable( GL_DEBUG_OUTPUT );
 			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
 

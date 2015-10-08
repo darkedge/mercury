@@ -5,6 +5,7 @@
 static GLuint m_program;
 static GLuint m_vertex;
 static GLuint m_fragment;
+static GLuint u_mvp;
 
 void AttachShaderFromFile(GLuint *shader, const char *file, GLenum shaderType) {
 	int32_t size = 0;
@@ -29,7 +30,7 @@ void AttachShaderFromFile(GLuint *shader, const char *file, GLenum shaderType) {
 	fclose(f);
 	str[size] = '\0';
 
-	glCreateShader(shaderType);
+	*shader = glCreateShader(shaderType);
 
 	glShaderSource(*shader, 1, (const char **) &str, nullptr);
 	delete [] str;
@@ -91,6 +92,14 @@ void LoadProgram() {
 	glValidateProgram(m_program);
 	FindProgramErrors(GL_VALIDATE_STATUS);
 
-	// TODO: get uniforms
-	
+	// get uniforms
+	glGetUniformLocation(m_program, "mvp_matrix");
+}
+
+void BindProgram() {
+	glUseProgram(m_program);
+}
+
+void UploadMVPMatrix(const mat4 &mat) {
+	GL_TRY(glUniformMatrix4fv(u_mvp, 1, GL_FALSE, &mat.e[0]));
 }

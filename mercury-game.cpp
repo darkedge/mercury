@@ -11,6 +11,7 @@ static GLuint m_colorBuffer = 0;
 static GLuint m_texCoordBuffer = 0;
 static GLuint m_indexBuffer = 0;
 static size_t m_numTris = 0;
+static mat4 m_projection;
 
 void Init() {
 	LoadProgram();
@@ -88,6 +89,8 @@ void Init() {
 	GL_TRY(glBindVertexArray(0));
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+	LoadProjection(&m_projection, 60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
 }
 
 void Tick() {
@@ -98,10 +101,17 @@ void Tick() {
 	// bind camera uniform
 
 	// bind program
-
-	// bind texture
+	BindProgram();
 
 	// set mvp matrix
+	mat4 model;
+	LoadTranslation(&model, float3{0.0f, 0.0f, 10.0f});
+	//mat4 translate = math::TranslationMatrix(-m_player->GetPosition());
+	//mat4 rotate = math::Transpose(math::mat4(m_player->GetRotation()));
+	//mat4 view = rotate * translate;
+	//mat4 mvp = m_projection * view * model;
+	mat4 mvp = Mul(m_projection, model);
+	UploadMVPMatrix(mvp);
 
 	// render sphere
 

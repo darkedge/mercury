@@ -163,7 +163,7 @@ union float4 {
 		float Ignored5_;
 		float2 zw;
 	};
-	float cell[4];
+	float e[4];
 };
 
 inline float4 &
@@ -214,23 +214,72 @@ operator*(float4 lhs, float rhs) {
 	return result;
 }
 
-struct mat4 {
-	float4 cell[4];
-	float4& operator[](int32_t i) {
-		return cell[i];
-	}
+union mat4 {
+	float4 v[4];
+	float e[16];
 };
 
-static const float3 kXAxis = { 1.0f, 0.0f, 0.0f };
-static const float3 kYAxis = { 0.0f, 1.0f, 0.0f };
-static const float3 kZAxis = { 0.0f, 0.0f, 1.0f };
-static const float3 kNegXAxis = { -1.0f, 0.0f, 0.0f };
-static const float3 kNegYAxis = { 0.0f, -1.0f, 0.0f };
-static const float3 kNegZAxis = { 0.0f, 0.0f, -1.0f };
-static const float2 kZero2f = { 0.0f, 0.0f };
-static const float3 kZero3f = { 0.0f, 0.0f, 0.0f };
-static const float4 kZero4f = { 0.0f, 0.0f, 0.0f, 0.0f };
+mat4 Mul(mat4 a, mat4 b) {
+	mat4 result;
+	result.e[0] = a.e[0] * b.e[0] + a.e[4] * b.e[1] + a.e[8]  * b.e[2] + a.e[12] * b.e[3];
+	result.e[1] = a.e[1] * b.e[0] + a.e[5] * b.e[1] + a.e[9]  * b.e[2] + a.e[13] * b.e[3];
+	result.e[2] = a.e[2] * b.e[0] + a.e[6] * b.e[1] + a.e[10] * b.e[2] + a.e[14] * b.e[3];
+	result.e[3] = a.e[3] * b.e[0] + a.e[7] * b.e[1] + a.e[11] * b.e[2] + a.e[15] * b.e[3];
+
+	result.e[4] = a.e[0] * b.e[4] + a.e[4] * b.e[5] + a.e[8]  * b.e[6] + a.e[12] * b.e[7];
+	result.e[5] = a.e[1] * b.e[4] + a.e[5] * b.e[5] + a.e[9]  * b.e[6] + a.e[13] * b.e[7];
+	result.e[6] = a.e[2] * b.e[4] + a.e[6] * b.e[5] + a.e[10] * b.e[6] + a.e[14] * b.e[7];
+	result.e[7] = a.e[3] * b.e[4] + a.e[7] * b.e[5] + a.e[11] * b.e[6] + a.e[15] * b.e[7];
+
+	result.e[8]  = a.e[0] * b.e[8] + a.e[4] * b.e[9] + a.e[8]  * b.e[10] + a.e[12] * b.e[11];
+	result.e[9]  = a.e[1] * b.e[8] + a.e[5] * b.e[9] + a.e[9]  * b.e[10] + a.e[13] * b.e[11];
+	result.e[10] = a.e[2] * b.e[8] + a.e[6] * b.e[9] + a.e[10] * b.e[10] + a.e[14] * b.e[11];
+	result.e[11] = a.e[3] * b.e[8] + a.e[7] * b.e[9] + a.e[11] * b.e[10] + a.e[15] * b.e[11];
+
+	result.e[12] = a.e[0] * b.e[12] + a.e[4] * b.e[13] + a.e[8]  * b.e[14] + a.e[12] * b.e[15];
+	result.e[13] = a.e[1] * b.e[12] + a.e[5] * b.e[13] + a.e[9]  * b.e[14] + a.e[13] * b.e[15];
+	result.e[14] = a.e[2] * b.e[12] + a.e[6] * b.e[13] + a.e[10] * b.e[14] + a.e[14] * b.e[15];
+	result.e[15] = a.e[3] * b.e[12] + a.e[7] * b.e[13] + a.e[11] * b.e[14] + a.e[15] * b.e[15];
+
+	return result;
+}
+
+float4 Mul(mat4 a, float4 b) {
+	float4 result;
+	
+	result.x = a.e[0] * b.x + a.e[4] * b.y + a.e[8]  * b.z + a.e[12] * b.w;
+	result.y = a.e[1] * b.x + a.e[5] * b.y + a.e[9]  * b.z + a.e[13] * b.w;
+	result.z = a.e[2] * b.x + a.e[6] * b.y + a.e[10] * b.z + a.e[14] * b.w;
+	result.w = a.e[3] * b.x + a.e[7] * b.y + a.e[11] * b.z + a.e[15] * b.w;
+
+	return result;
+}
+
+static const float3 kXAxis { 1.0f, 0.0f, 0.0f };
+static const float3 kYAxis { 0.0f, 1.0f, 0.0f };
+static const float3 kZAxis { 0.0f, 0.0f, 1.0f };
+static const float3 kNegXAxis { -1.0f, 0.0f, 0.0f };
+static const float3 kNegYAxis { 0.0f, -1.0f, 0.0f };
+static const float3 kNegZAxis { 0.0f, 0.0f, -1.0f };
+static const float2 kZero2f { 0.0f, 0.0f };
+static const float3 kZero3f { 0.0f, 0.0f, 0.0f };
+static const float4 kZero4f { 0.0f, 0.0f, 0.0f, 0.0f };
 static const float kDeg2Rad = 0.01745329251994329576923690768489f;
 static const float kRad2Deg = 57.295779513082320876798154814105f;
 static const float kPi = 3.14159265358979323846264338327950288f;
 //static const float kTau = 2.0f * kPi;
+
+void LoadProjection(mat4 *result, float fovy, float aspect, float zNear, float zFar) {
+	float tanHalfFovy = (float) tan(fovy / 2.0f);
+	(*result).v[0] = { 1.0f / (aspect * tanHalfFovy), 0.0f, 0.0f, 0.0f };
+	(*result).v[1] = { 0.0f, 1.0f / (tanHalfFovy), 0.0f, 0.0f };
+	(*result).v[2] = { 0.0f, 0.0f, -(zFar + zNear) / (zFar - zNear), -1.0f };
+	(*result).v[3] = { 0.0f, 0.0f, -(2.0f * zFar * zNear) / (zFar - zNear), 0.0f };
+}
+
+void LoadTranslation(mat4 *result, const float3 &translation) {
+	(*result).v[0] = { 1.0f, 0.0f, 0.0f, 0.0f };
+	(*result).v[1] = { 0.0f, 1.0f, 0.0f, 0.0f };
+	(*result).v[2] = { 0.0f, 0.0f, 1.0f, 0.0f };
+	(*result).v[3] = { translation, 1.0f };
+}
