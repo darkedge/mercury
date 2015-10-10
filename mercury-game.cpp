@@ -4,7 +4,6 @@
 #include "glad/glad.h"
 #include <vector>
 
-#define GL_TRY(x) x
 #define KL_V(t) (1 - (t))
 
 static GLuint m_vertexArray = 0;
@@ -70,7 +69,7 @@ void Init() {
 	GL_TRY(glGenBuffers(1, &m_colorBuffer));
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_colorBuffer));
 	if (m_normals.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(float3), m_normals.data(), GL_STATIC_DRAW));
-	GL_TRY(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr));
+	GL_TRY(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(1));
 
 	// Texcoord buffer
@@ -107,7 +106,7 @@ void Tick() {
 
 	// set mvp matrix
 	mat4 model;
-	LoadTranslation(&model, float3{0.0f, 0.0f, 10.0f});
+	LoadTranslation(&model, float3{0.0f, 0.0f, -10.0f});
 	//mat4 translate = math::TranslationMatrix(-m_player->GetPosition());
 	//mat4 rotate = math::Transpose(math::mat4(m_player->GetRotation()));
 	//mat4 view = rotate * translate;

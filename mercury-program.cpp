@@ -1,7 +1,5 @@
 #include "mercury-program.h"
 
-#define GL_TRY(x) x
-
 static GLuint m_program;
 static GLuint m_vertex;
 static GLuint m_fragment;

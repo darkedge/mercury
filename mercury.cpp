@@ -99,7 +99,6 @@ void main() {
 			glEnable( GL_MULTISAMPLE );
 			glEnable( GL_CULL_FACE );
 			glEnable( GL_DEPTH_TEST );
-			glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 			glClearColor( 0.192156862745098f, 0.3019607843137255f, 0.4745098039215686f, 1.0f );
 			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 			glDepthFunc( GL_LEQUAL );
