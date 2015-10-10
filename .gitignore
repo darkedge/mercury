@@ -198,7 +198,9 @@ FakesAssemblies/
 # Project specific
 glfw-Win32
 glfw-x64
-mercury-Win32
-mercury-x64
+Win32-Debug
+Win32-Release
+x64-Debug
+x64-Release
 mercury.sublime-workspace
 mercury.nativecodeanalysis.xml

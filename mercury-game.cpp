@@ -1,5 +1,7 @@
 #include "mercury-game.h"
 #include "mercury-program.h"
+#include "mercury-math.h"
+#include "glad/glad.h"
 #include <vector>
 
 #define GL_TRY(x) x

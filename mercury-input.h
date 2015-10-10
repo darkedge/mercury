@@ -1,8 +1,6 @@
 #pragma once
 #include "mercury-math.h"
-
-#define MC_NUM_KEYBOARD_KEYS GLFW_KEY_LAST + 1
-#define MC_NUM_MOUSE_BUTTONS GLFW_MOUSE_BUTTON_LAST + 1
+#include <cstdint>
 
 namespace Input {
 	bool GetKey( int32_t key );

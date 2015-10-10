@@ -1,5 +1,10 @@
 #include "mercury-input.h"
+#include "GLFW/glfw3.h"
 #include "mercury.h"
+#include <cstring>
+
+#define MC_NUM_KEYBOARD_KEYS GLFW_KEY_LAST + 1
+#define MC_NUM_MOUSE_BUTTONS GLFW_MOUSE_BUTTON_LAST + 1
 
 // Keyboard
 static bool prev[MC_NUM_KEYBOARD_KEYS];
@@ -18,25 +23,25 @@ static float2 lastMousePos;
 static float2 mouseDelta;
 static float2 mousePos;
 
-bool Input::GetKey( int key ) {
+bool Input::GetKey( int32_t key ) {
 	return keys[key];
 }
-bool Input::GetKeyDown( int key ) {
+bool Input::GetKeyDown( int32_t key ) {
 	return down[key];
 }
-bool Input::GetKeyUp( int key ) {
+bool Input::GetKeyUp( int32_t key ) {
 	return up[key];
 }
 
-bool Input::GetMouse( int button ) {
+bool Input::GetMouse( int32_t button ) {
 	return mouseButtons[button];
 }
 
-bool Input::GetMouseDown( int button ) {
+bool Input::GetMouseDown( int32_t button ) {
 	return mouseDown[button];
 }
 
-bool Input::GetMouseUp( int button ) {
+bool Input::GetMouseUp( int32_t button ) {
 	return mouseUp[button];
 }
 
@@ -54,11 +59,11 @@ float2 Input::GetMousePosition() {
 	return mousePos;
 }
 
-void Input::SetMouseButton( int button, bool pressed ) {
+void Input::SetMouseButton( int32_t button, bool pressed ) {
 	mouseButtons[button] = pressed;
 }
 
-void Input::SetKey( int key, bool pressed ) {
+void Input::SetKey( int32_t key, bool pressed ) {
 	keys[key] = pressed;
 }
 
@@ -69,16 +74,16 @@ void Input::SetMousePosition( const float2 pos ) {
 
 void Input::Init() {
 	// Keyboard
-	memset( prev, int( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
-	memset( keys, int( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
-	memset( down, int( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
-	memset( up, int( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
+	memset( prev, int32_t( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
+	memset( keys, int32_t( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
+	memset( down, int32_t( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
+	memset( up, int32_t( false ), MC_NUM_KEYBOARD_KEYS * sizeof( bool ) );
 
 	// Mouse
-	memset( mousePrev, int( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
-	memset( mouseButtons, int( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
-	memset( mouseDown, int( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
-	memset( mouseUp, int( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
+	memset( mousePrev, int32_t( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
+	memset( mouseButtons, int32_t( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
+	memset( mouseDown, int32_t( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
+	memset( mouseUp, int32_t( false ), MC_NUM_MOUSE_BUTTONS * sizeof( bool ) );
 
 	isMouseGrabbed = false;
 	mouseDelta = {0, 0};
@@ -88,7 +93,7 @@ void Input::Tick() {
 	// Keyboard
 	{
 		bool changes[MC_NUM_KEYBOARD_KEYS];
-		for ( unsigned int i = 0; i < MC_NUM_KEYBOARD_KEYS; i++ ) {
+		for ( int32_t i = 0; i < MC_NUM_KEYBOARD_KEYS; i++ ) {
 			changes[i]	= keys[i]		^ prev[i];
 			down[i]		= changes[i]	& keys[i];
 			up[i]		= changes[i]	& !keys[i];
@@ -98,7 +103,7 @@ void Input::Tick() {
 	// Mouse
 	{
 		bool changes[MC_NUM_MOUSE_BUTTONS];
-		for ( unsigned int i = 0; i < MC_NUM_MOUSE_BUTTONS; i++ ) {
+		for ( int32_t i = 0; i < MC_NUM_MOUSE_BUTTONS; i++ ) {
 			changes[i] = mouseButtons[i] ^ mousePrev[i];
 			mouseDown[i] = changes[i] & mouseButtons[i];
 			mouseUp[i] = changes[i] & !mouseButtons[i];

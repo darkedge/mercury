@@ -1,2 +1,2 @@
 @echo off
-devenv ".\mercury-x64\mercury.exe"
+devenv "x64-Debug\mercury.exe"
