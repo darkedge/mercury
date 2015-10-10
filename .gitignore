@@ -203,4 +203,5 @@ Win32-Release
 x64-Debug
 x64-Release
 mercury.sublime-workspace
-mercury.nativecodeanalysis.xml
+*.nativecodeanalysis.xml
+*.filters
