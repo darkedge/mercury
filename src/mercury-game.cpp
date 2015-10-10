@@ -91,7 +91,7 @@ void Init() {
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	LoadProjection(&m_projection, 60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
+	LoadPerspective(&m_projection, 60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
 }
 
 void Tick() {

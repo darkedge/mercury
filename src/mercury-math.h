@@ -269,7 +269,7 @@ static const float kRad2Deg = 57.295779513082320876798154814105f;
 static const float kPi = 3.14159265358979323846264338327950288f;
 //static const float kTau = 2.0f * kPi;
 
-void LoadProjection(mat4 *result, float fovy, float aspect, float zNear, float zFar) {
+void LoadPerspective(mat4 *result, float fovy, float aspect, float zNear, float zFar) {
 	float tanHalfFovy = (float) tan(fovy / 2.0f);
 	(*result).v[0] = { 1.0f / (aspect * tanHalfFovy), 0.0f, 0.0f, 0.0f };
 	(*result).v[1] = { 0.0f, 1.0f / (tanHalfFovy), 0.0f, 0.0f };
