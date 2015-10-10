@@ -1,7 +1,5 @@
 @echo off
-if exist glfw-Win32 rmdir /s /q glfw-Win32
-if exist glfw-x64 rmdir /s /q glfw-x64
-if exist Win32-Debug rmdir /s /q Win32-Debug
-if exist Win32-Release rmdir /s /q Win32-Release
-if exist x64-Debug rmdir /s /q x64-Debug
-if exist x64-Release rmdir /s /q x64-Release
+msbuild /t:Clean /v:m /p:Platform=x86;Configuration="Debug" vs2015\mercury.sln
+msbuild /t:Clean /v:m /p:Platform=x86;Configuration="Release" vs2015\mercury.sln
+msbuild /t:Clean /v:m /p:Platform=x64;Configuration="Debug" vs2015\mercury.sln
+msbuild /t:Clean /v:m /p:Platform=x64;Configuration="Release" vs2015\mercury.sln

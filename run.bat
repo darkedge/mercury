@@ -1,4 +1,4 @@
 @echo off
-pushd x64-Debug
+pushd vs2015\x64-Debug
 start mercury.exe
 popd
