@@ -83,8 +83,8 @@ bool FindProgramErrors(GLenum type)
 
 void LoadProgram() {
 	m_program = glCreateProgram();
-	AttachShaderFromFile(&m_vertex, "../program.vert", GL_VERTEX_SHADER);
-	AttachShaderFromFile(&m_fragment, "../program.frag", GL_FRAGMENT_SHADER);
+	AttachShaderFromFile(&m_vertex, "../../assets/program.vert", GL_VERTEX_SHADER);
+	AttachShaderFromFile(&m_fragment, "../../assets/program.frag", GL_FRAGMENT_SHADER);
 	glLinkProgram(m_program);
 	FindProgramErrors(GL_LINK_STATUS);
 	glValidateProgram(m_program);
