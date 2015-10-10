@@ -1,12 +1,12 @@
 #include "mercury-program.h"
 
-static GLuint m_program;
-static GLuint m_vertex;
-static GLuint m_fragment;
-static GLuint u_mvp;
+static GLuint m_program = 0;
+static GLuint m_vertex = 0;
+static GLuint m_fragment = 0;
+static GLint u_mvp = -1;
 
 void AttachShaderFromFile(GLuint *shader, const char *file, GLenum shaderType) {
-	int32_t size = 0;
+	size_t size = 0;
 #pragma warning(suppress:4996)
 	FILE *f = fopen(file, "rb");
 	if (!f)
@@ -91,7 +91,7 @@ void LoadProgram() {
 	FindProgramErrors(GL_VALIDATE_STATUS);
 
 	// get uniforms
-	glGetUniformLocation(m_program, "mvp_matrix");
+	u_mvp = glGetUniformLocation(m_program, "mvp_matrix");
 }
 
 void BindProgram() {
