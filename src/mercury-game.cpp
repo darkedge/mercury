@@ -14,6 +14,9 @@ static GLuint m_indexBuffer = 0;
 static size_t m_numTris = 0;
 static mat4 m_projection;
 
+static float3 s_playerPosition;
+static float4 s_playerRotation;
+
 void Init() {
 	LoadProgram();
 
@@ -91,13 +94,67 @@ void Init() {
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	LoadPerspective(&m_projection, 60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
+	m_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
 }
 
 void Tick() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	// input
+	{
+		static float2 lastRotation;
+		static float2 currentRotation;
+
+		if (Input::GetKeyDown(GLFW_KEY_M))
+		{
+			Input::SetMouseGrabbed(!Input::IsMouseGrabbed());
+		}
+
+		// Reset
+		if (Input::GetKeyDown(GLFW_KEY_R))
+		{
+			currentRotation = lastRotation = { 0, 0 };
+			s_playerPosition = { 0, 0, 0 };
+			s_playerRotation = { 0, 0, 0, 1 };
+		}
+
+		if (Input::IsMouseGrabbed())
+		{
+			// Rotation
+			const float ROT_SPEED = 0.0025f;
+			currentRotation -= ROT_SPEED * Input::GetMouseDelta();
+			if (currentRotation.y < -90.0f * kDeg2Rad)
+			{
+				currentRotation.y = -90.0f * kDeg2Rad;
+			}
+			if (currentRotation.y > 90.0f * kDeg2Rad)
+			{
+				currentRotation.y = 90.0f * kDeg2Rad;
+			}
+			if (currentRotation.x != lastRotation.x || currentRotation.y != lastRotation.y)
+			{
+				s_playerRotation = Euler(float3{ currentRotation.y, currentRotation.x, 0 });
+				lastRotation = currentRotation;
+			}
+		}
+
+		// Translation
+		const float SPEED = 1.0f;
+		float3 translation { 0, 0, 0 };
+		if (Input::GetKey(GLFW_KEY_W))		translation += Forward(s_playerPosition, s_playerRotation);
+		if (Input::GetKey(GLFW_KEY_A))		translation -= Right(s_playerPosition, s_playerRotation);
+		if (Input::GetKey(GLFW_KEY_S))		translation -= Forward(s_playerPosition, s_playerRotation);
+		if (Input::GetKey(GLFW_KEY_D))		translation += Right(s_playerPosition, s_playerRotation);
+		if (Input::GetKey(GLFW_KEY_LEFT_CONTROL) || Input::GetKey(GLFW_KEY_C) || Input::GetKey(GLFW_KEY_LEFT_SHIFT)) translation -= float3{ 0, 1, 0 };
+		if (Input::GetKey(GLFW_KEY_SPACE)) translation += float3{ 0, 1, 0 };
+		if (translation != float3{ 0, 0, 0 })
+		{
+			float3 pos = s_playerPosition;
+			pos += Normalize(translation) * SPEED * GetDeltaTime();
+			s_playerPosition = pos;
+			//printf("pos: %.1f, %.1f, %.1f\n", s_player->GetPosition().x, s_player->GetPosition().y, s_player->GetPosition().z);
+		}
+	}
 
 	// bind camera uniform
 
@@ -105,13 +162,13 @@ void Tick() {
 	BindProgram();
 
 	// set mvp matrix
-	mat4 model;
-	LoadTranslation(&model, float3{0.0f, 0.0f, -10.0f});
-	//mat4 translate = math::TranslationMatrix(-m_player->GetPosition());
-	//mat4 rotate = math::Transpose(math::mat4(m_player->GetRotation()));
-	//mat4 view = rotate * translate;
+	mat4 model = Translation(float3{0.0f, 0.0f, -10.0f});
+
+	mat4 translate = Translation(-s_playerPosition);
+	mat4 rotate = Transpose(MatrixFromQuat(s_playerRotation));
+	mat4 view = Mul(rotate, translate);
 	//mat4 mvp = m_projection * view * model;
-	mat4 mvp = Mul(m_projection, model);
+	mat4 mvp = Mul(Mul(m_projection, view), model);
 	UploadMVPMatrix(mvp);
 
 	// render sphere

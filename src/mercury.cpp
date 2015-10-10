@@ -17,6 +17,7 @@
 #include "mercury-input.cpp"
 #include "mercury-game.cpp"
 #include "mercury-program.cpp"
+#include "mercury-math.cpp"
 
 // Tell Optimus to use the high-performance NVIDIA processor
 // option if it's on auto-select (we cannot override it)
