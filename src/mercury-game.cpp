@@ -17,9 +17,48 @@ static mat4 m_projection;
 static float3 s_playerPosition;
 static float4 s_playerRotation;
 
-void Init() {
-	LoadProgram();
+struct GBuffer {
+	GLuint fbo = 0;
+	GLuint textures[3] = {};
+	GLuint depthTexture = 0;
+} s_gbuffer;
 
+void InitGBuffer() {
+	 // Create the FBO
+    glGenFramebuffers(1, &s_gbuffer.fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
+
+    // Create the gbuffer textures
+    glGenTextures(3, s_gbuffer.textures);
+    glGenTextures(1, &s_gbuffer.depthTexture);
+
+    for (int32_t i = 0 ; i < 3; i++) {
+       glBindTexture(GL_TEXTURE_2D, s_gbuffer.textures[i]);
+       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGB, GL_FLOAT, NULL);
+       glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_gbuffer.textures[i], 0);
+    }
+
+    // depth
+    glBindTexture(GL_TEXTURE_2D, s_gbuffer.depthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, GetWindowWidth(), GetWindowHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+                  NULL);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_gbuffer.depthTexture, 0);
+
+    GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+    glDrawBuffers(4, DrawBuffers);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        printf("FB error, status: 0x%x\n", status);
+        return;
+    }
+
+    // restore default FBO
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+void InitSphere() {
 	// Create sphere
 	std::vector<float3> m_positions;
 	std::vector<float3> m_normals;
@@ -93,8 +132,16 @@ void Init() {
 	GL_TRY(glBindVertexArray(0));
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+}
+
+void Init() {
+	LoadProgram();
+
+	InitSphere();
 
 	m_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
+
+	InitGBuffer();
 }
 
 void Tick() {

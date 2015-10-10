@@ -1,6 +1,8 @@
 #pragma once
 GLFWwindow * GetWindow();
 float GetDeltaTime();
+int32_t GetWindowWidth();
+int32_t GetWindowHeight();
 
 #define GL_ERROR_CASE( err )\
 	case err:\

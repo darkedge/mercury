@@ -27,8 +27,8 @@ extern "C" {
 
 static GLFWwindow *s_window;
 static float s_deltaTime = 0.0f;
-static int s_width = 1280;
-static int s_height = 720;
+static int32_t s_width = 1280;
+static int32_t s_height = 720;
 static const char *s_name = "Hello World!";
 
 inline float GetDeltaTime() {
@@ -37,6 +37,14 @@ inline float GetDeltaTime() {
 
 inline GLFWwindow *GetWindow() {
 	return s_window;
+}
+
+inline int32_t GetWindowWidth() {
+	return s_width;
+}
+
+inline int32_t GetWindowHeight() {
+	return s_height;
 }
 
 void CALLBACK debugCallbackARB( GLenum source, GLenum type, GLuint id, GLenum severity,
