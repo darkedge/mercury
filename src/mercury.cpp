@@ -40,9 +40,53 @@ inline GLFWwindow *GetWindow() {
 }
 
 void CALLBACK debugCallbackARB( GLenum source, GLenum type, GLuint id, GLenum severity,
-	GLsizei length, const GLchar *message, GLvoid *userParam )
-{
+	GLsizei length, const GLchar *message, GLvoid *userParam ) {
 	printf( "%s\n", message );
+}
+
+void GlfwErrorCallback( int32_t, const char *description ) {
+	fputs( description, stderr );
+	fputs( "\n", stderr );
+}
+
+void GlfwKeyCallBack( GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mods ) {
+	if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS ) {
+		glfwSetWindowShouldClose( window, GL_TRUE );
+	}
+
+	if ( action == GLFW_PRESS )	{
+		Input::SetKey( key, true );
+	}
+	if ( action == GLFW_RELEASE ) {
+		Input::SetKey( key, false );
+	}
+}
+
+void GlfwMouseButtonCallback( GLFWwindow *window, int32_t button, int32_t action, int32_t mods ) {
+	if ( action == GLFW_PRESS )	{
+		Input::SetMouseButton( button, true );
+	}
+	if ( action == GLFW_RELEASE ) {
+		Input::SetMouseButton( button, false );
+	}
+}
+
+void GlfwScrollCallback( GLFWwindow *window, double xoffset, double yoffset ) {
+	// TODO: GUI
+}
+
+void GlfwCharCallback( GLFWwindow *window, uint32_t codepoint ) {
+	// TODO: GUI
+}
+
+void GlfwCursorPosCallback( GLFWwindow *window, double xpos, double ypos ) {
+	Input::SetMousePosition( float2 { (float) xpos, (float) ypos } );
+}
+
+void GlfwWindowSizeCallBack( GLFWwindow *window, int32_t width, int32_t height ) {
+	// TODO
+	//Application::SetWidth( width );
+	//Application::SetHeight( height );
 }
 
 void EnterWindowLoop() {
@@ -69,7 +113,7 @@ void EnterWindowLoop() {
 }
 
 void main() {
-	// glfwSetErrorCallback( GlfwErrorCallback );
+	glfwSetErrorCallback( GlfwErrorCallback );
 
 	if ( glfwInit() ) {
 		// Window hints
@@ -81,12 +125,12 @@ void main() {
 		glfwMakeContextCurrent( s_window );
 
 		// TODO: Callbacks
-		// glfwSetKeyCallback( s_window, GlfwKeyCallBack );
-		// glfwSetMouseButtonCallback( s_window, GlfwMouseButtonCallback );
-		// glfwSetScrollCallback( s_window, GlfwScrollCallback );
-		// glfwSetCharCallback( s_window, GlfwCharCallback );
-		// glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
-		// glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
+		glfwSetKeyCallback( s_window, GlfwKeyCallBack );
+		glfwSetMouseButtonCallback( s_window, GlfwMouseButtonCallback );
+		glfwSetScrollCallback( s_window, GlfwScrollCallback );
+		glfwSetCharCallback( s_window, GlfwCharCallback );
+		glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
+		glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
 
 		// Sync to monitor refresh rate
 		glfwSwapInterval( 1 );
