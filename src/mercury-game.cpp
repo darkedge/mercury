@@ -26,8 +26,8 @@ void Init() {
 	std::vector<float2> m_texcoords;
 	std::vector<int32_t> m_indices;
 
-	const int32_t stacks = 10;
-	const int32_t slices = 10;
+	const int32_t stacks = 50;
+	const int32_t slices = 50;
 	const float radius = 1.0f;
 
 	for ( int32_t i = 0; i <= stacks; i++ ) {
@@ -139,7 +139,7 @@ void Tick() {
 		}
 
 		// Translation
-		const float SPEED = 1.0f;
+		const float SPEED = 5.0f;
 		float3 translation { 0, 0, 0 };
 		if (Input::GetKey(GLFW_KEY_W))		translation += Forward(s_playerPosition, s_playerRotation);
 		if (Input::GetKey(GLFW_KEY_A))		translation -= Right(s_playerPosition, s_playerRotation);
