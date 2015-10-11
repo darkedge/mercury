@@ -86,7 +86,7 @@ void _Finalize(GLuint program) {
 }
 
 /************************************************************************/
-/* Geometry program                                                     */
+/* Common stuff                                                         */
 /************************************************************************/
 
 static struct GeometryProgram {
@@ -97,16 +97,37 @@ static struct GeometryProgram {
 	GLint u_m = -1;
 } s_geometryProgram;
 
-void LoadGeometryProgram() {
-	s_geometryProgram.program = glCreateProgram();
-	s_geometryProgram.vertex = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
-	s_geometryProgram.fragment = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
-	_Finalize(s_geometryProgram.program);
+static struct IBLProgram {
+	GLuint program = 0;
+	GLuint vertex = 0;
+	GLuint fragment = 0;
+} s_iblProgram;
 
-	// get uniforms
-	s_geometryProgram.u_mvp = glGetUniformLocation(s_geometryProgram.program, "mvp_matrix");
-	s_geometryProgram.u_m = glGetUniformLocation(s_geometryProgram.program, "m_matrix");
+void LoadPrograms() {
+	{
+		s_geometryProgram.program = glCreateProgram();
+		s_geometryProgram.vertex = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
+		s_geometryProgram.fragment = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
+		_Finalize(s_geometryProgram.program);
+
+		// get uniforms
+		s_geometryProgram.u_mvp = glGetUniformLocation(s_geometryProgram.program, "mvp_matrix");
+		s_geometryProgram.u_m = glGetUniformLocation(s_geometryProgram.program, "m_matrix");
+	}
+
+	{
+		s_iblProgram.program = glCreateProgram();
+		s_iblProgram.vertex = _AttachShaderFromFile(s_iblProgram.program, "../../assets/ibl.vert", GL_VERTEX_SHADER);
+		s_iblProgram.fragment = _AttachShaderFromFile(s_iblProgram.program, "../../assets/ibl.frag", GL_FRAGMENT_SHADER);
+		_Finalize(s_iblProgram.program);
+
+		// get uniforms
+	}
 }
+
+/************************************************************************/
+/* Geometry program                                                     */
+/************************************************************************/
 
 void BindGeometryProgram() {
 	glUseProgram(s_geometryProgram.program);
@@ -120,21 +141,6 @@ void SetGeometryProgramConstants(const mat4 &mvp, const mat4 &m) {
 /************************************************************************/
 /* Image-based lighting program                                         */
 /************************************************************************/
-
-static struct IBLProgram {
-	GLuint program = 0;
-	GLuint vertex = 0;
-	GLuint fragment = 0;
-} s_iblProgram;
-
-void LoadIBLProgram() {
-	s_iblProgram.program = glCreateProgram();
-	s_iblProgram.vertex = _AttachShaderFromFile(s_iblProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
-	s_iblProgram.fragment = _AttachShaderFromFile(s_iblProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
-	_Finalize(s_iblProgram.program);
-
-	// get uniforms
-}
 
 void BindIBLProgram() {
 	glUseProgram(s_iblProgram.program);

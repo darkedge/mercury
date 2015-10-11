@@ -155,7 +155,7 @@ void InitSphere() {
 }
 
 void Init() {
-	LoadGeometryProgram();
+	LoadPrograms();
 
 	InitSphere();
 
