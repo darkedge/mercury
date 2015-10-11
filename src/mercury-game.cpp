@@ -277,18 +277,22 @@ void Tick() {
 	GLsizei HalfWidth = (GLsizei)(GetWindowWidth() / 2.0f);
 	GLsizei HalfHeight = (GLsizei)(GetWindowHeight() / 2.0f);
 
+	// top-left - position
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
-					0, 0, HalfWidth, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	glReadBuffer(GL_COLOR_ATTACHMENT1);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					0, HalfHeight, HalfWidth, GetWindowHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-	glReadBuffer(GL_COLOR_ATTACHMENT2);
+	// top-right - diffuse
+	glReadBuffer(GL_COLOR_ATTACHMENT1);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					HalfWidth, HalfHeight, GetWindowWidth(), GetWindowHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
+	// bottom-left - normal
+	glReadBuffer(GL_COLOR_ATTACHMENT2);
+	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
+		0, 0, HalfWidth, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	// bottom-right - texcoord
 	glReadBuffer(GL_COLOR_ATTACHMENT3);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					HalfWidth, 0, GetWindowWidth(), HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR); 
