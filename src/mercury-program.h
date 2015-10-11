@@ -1,6 +1,5 @@
 #pragma once
 
-void LoadProgram();
-void BindProgram();
-void UploadMVPMatrix(const mat4 &mat);
-void UploadMMatrix(const mat4 &mat);
+void LoadGeometryProgram();
+void BindGeometryProgram();
+void SetGeometryProgramConstants(const mat4 &mvp, const mat4 &m);

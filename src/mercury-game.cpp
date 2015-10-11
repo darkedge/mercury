@@ -155,7 +155,7 @@ void InitSphere() {
 }
 
 void Init() {
-	LoadProgram();
+	LoadGeometryProgram();
 
 	InitSphere();
 
@@ -224,7 +224,7 @@ void Tick() {
 	// bind camera uniform
 
 	// bind program
-	BindProgram();
+	BindGeometryProgram();
 
 	// set mvp matrix
 	mat4 model = Translation(float3{0.0f, 0.0f, -3.0f});
@@ -234,8 +234,7 @@ void Tick() {
 	mat4 view = Mul(rotate, translate);
 	//mat4 mvp = m_projection * view * model;
 	mat4 mvp = Mul(Mul(m_projection, view), model);
-	UploadMVPMatrix(mvp);
-	UploadMMatrix(model);
+	SetGeometryProgramConstants(mvp, model);
 
 
 

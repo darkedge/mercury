@@ -86,7 +86,7 @@ bool _FindProgramErrors(GLuint program, GLenum type)
 	return false;
 }
 
-void LoadProgram() {
+void LoadGeometryProgram() {
 	s_geometryProgram.program = glCreateProgram();
 	s_geometryProgram.vertex = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
 	s_geometryProgram.fragment = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
@@ -100,14 +100,11 @@ void LoadProgram() {
 	s_geometryProgram.u_m = glGetUniformLocation(s_geometryProgram.program, "m_matrix");
 }
 
-void BindProgram() {
+void BindGeometryProgram() {
 	glUseProgram(s_geometryProgram.program);
 }
 
-void UploadMVPMatrix(const mat4 &mat) {
-	GL_TRY(glUniformMatrix4fv(s_geometryProgram.u_mvp, 1, GL_FALSE, &mat.e[0]));
-}
-
-void UploadMMatrix(const mat4 &mat) {
-	GL_TRY(glUniformMatrix4fv(s_geometryProgram.u_m, 1, GL_FALSE, &mat.e[0]));
+void SetGeometryProgramConstants(const mat4 &mvp, const mat4 &m) {
+	GL_TRY(glUniformMatrix4fv(s_geometryProgram.u_mvp, 1, GL_FALSE, &mvp.e[0]));
+	GL_TRY(glUniformMatrix4fv(s_geometryProgram.u_m, 1, GL_FALSE, &m.e[0]));
 }
