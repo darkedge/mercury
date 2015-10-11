@@ -29,7 +29,7 @@ static struct {
 	GLuint depthTexture = 0;
 } s_gbuffer;
 
-void InitGBuffer() {
+void _InitGBuffer() {
 	 // Create the FBO
 	glGenFramebuffers(1, &s_gbuffer.fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
@@ -81,7 +81,7 @@ void InitGBuffer() {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void InitSphere() {
+void _InitSphere() {
 	// Create sphere
 	std::vector<float3> m_positions;
 	std::vector<float3> m_normals;
@@ -160,11 +160,11 @@ void InitSphere() {
 void Init() {
 	LoadPrograms();
 
-	InitSphere();
+	_InitSphere();
 
 	s_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
 
-	InitGBuffer();
+	_InitGBuffer();
 }
 
 void Tick() {
