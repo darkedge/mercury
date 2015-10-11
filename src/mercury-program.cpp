@@ -1,13 +1,5 @@
 #include "mercury-program.h"
 
-static struct GeometryProgram {
-	GLuint program = 0;
-	GLuint vertex = 0;
-	GLuint fragment = 0;
-	GLint u_mvp = -1;
-	GLint u_m = -1;
-} s_geometryProgram;
-
 GLuint _AttachShaderFromFile(GLuint program, const char *file, GLenum shaderType) {
 	size_t size = 0;
 #pragma warning(suppress:4996)
@@ -86,6 +78,18 @@ bool _FindProgramErrors(GLuint program, GLenum type)
 	return false;
 }
 
+/************************************************************************/
+/* Geometry program                                                     */
+/************************************************************************/
+
+static struct GeometryProgram {
+	GLuint program = 0;
+	GLuint vertex = 0;
+	GLuint fragment = 0;
+	GLint u_mvp = -1;
+	GLint u_m = -1;
+} s_geometryProgram;
+
 void LoadGeometryProgram() {
 	s_geometryProgram.program = glCreateProgram();
 	s_geometryProgram.vertex = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
@@ -107,4 +111,34 @@ void BindGeometryProgram() {
 void SetGeometryProgramConstants(const mat4 &mvp, const mat4 &m) {
 	GL_TRY(glUniformMatrix4fv(s_geometryProgram.u_mvp, 1, GL_FALSE, &mvp.e[0]));
 	GL_TRY(glUniformMatrix4fv(s_geometryProgram.u_m, 1, GL_FALSE, &m.e[0]));
+}
+
+/************************************************************************/
+/* Image-based lighting program                                         */
+/************************************************************************/
+
+static struct IBLProgram {
+	GLuint program = 0;
+	GLuint vertex = 0;
+	GLuint fragment = 0;
+} s_iblProgram;
+
+void LoadIBLProgram() {
+	s_iblProgram.program = glCreateProgram();
+	s_iblProgram.vertex = _AttachShaderFromFile(s_iblProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
+	s_iblProgram.fragment = _AttachShaderFromFile(s_iblProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
+	glLinkProgram(s_iblProgram.program);
+	_FindProgramErrors(s_iblProgram.program, GL_LINK_STATUS);
+	glValidateProgram(s_iblProgram.program);
+	_FindProgramErrors(s_iblProgram.program, GL_VALIDATE_STATUS);
+
+	// get uniforms
+}
+
+void BindIBLProgram() {
+	glUseProgram(s_iblProgram.program);
+}
+
+void SetIBLProgramConstants() {
+
 }
