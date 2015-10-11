@@ -89,7 +89,7 @@ void _Finalize(GLuint program) {
 /* Common stuff                                                         */
 /************************************************************************/
 
-static struct GeometryProgram {
+static struct {
 	GLuint program = 0;
 	GLuint vertex = 0;
 	GLuint fragment = 0;
@@ -97,7 +97,7 @@ static struct GeometryProgram {
 	GLint u_m = -1;
 } s_geometryProgram;
 
-static struct IBLProgram {
+static struct {
 	GLuint program = 0;
 	GLuint vertex = 0;
 	GLuint fragment = 0;
