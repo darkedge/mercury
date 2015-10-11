@@ -101,6 +101,8 @@ static struct IBLProgram {
 	GLuint program = 0;
 	GLuint vertex = 0;
 	GLuint fragment = 0;
+	GLint u_invView = -1;
+	GLint u_invProj = -1;
 } s_iblProgram;
 
 void LoadPrograms() {
@@ -122,6 +124,8 @@ void LoadPrograms() {
 		_Finalize(s_iblProgram.program);
 
 		// get uniforms
+		s_iblProgram.u_invView = glGetUniformLocation(s_iblProgram.program, "invView");
+		s_iblProgram.u_invProj = glGetUniformLocation(s_iblProgram.program, "invProj");
 	}
 }
 
@@ -146,6 +150,7 @@ void BindIBLProgram() {
 	glUseProgram(s_iblProgram.program);
 }
 
-void SetIBLProgramConstants() {
-
+void SetIBLProgramConstants(const mat4 &invView, const mat4 &invProj) {
+	GL_TRY(glUniformMatrix4fv(s_iblProgram.u_invView, 1, GL_FALSE, &invView.e[0]));
+	GL_TRY(glUniformMatrix4fv(s_iblProgram.u_invProj, 1, GL_FALSE, &invProj.e[0]));
 }

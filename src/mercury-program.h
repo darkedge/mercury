@@ -8,4 +8,4 @@ void SetGeometryProgramConstants(const mat4 &mvp, const mat4 &m);
 
 // Image-based lighting program
 void BindIBLProgram();
-void SetIBLProgramConstants();
+void SetIBLProgramConstants(const mat4 &invView, const mat4 &invProj);

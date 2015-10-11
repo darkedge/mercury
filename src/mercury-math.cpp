@@ -111,7 +111,7 @@ float4 Euler(float3 eulerAngle) {
 
 float3 Normalize(float3 v) {
 	float3 v2 = v * v;
-	float invLength = 1.0f / sqrt(v2.x + v2.y + v2.z);
+	float invLength = 1.0f / sqrtf(v2.x + v2.y + v2.z);
 	return float3 {
 		v.x * invLength,
 		v.y * invLength,
@@ -121,17 +121,17 @@ float3 Normalize(float3 v) {
 
 float3 Cos(float3 v) {
 	return float3 {
-		cos(v.x),
-		cos(v.y),
-		cos(v.z),
+		cosf(v.x),
+		cosf(v.y),
+		cosf(v.z),
 	};
 }
 
 float3 Sin(float3 v) {
 	return float3 {
-		sin(v.x),
-		sin(v.y),
-		sin(v.z),
+		sinf(v.x),
+		sinf(v.y),
+		sinf(v.z),
 	};
 }
 
@@ -189,4 +189,81 @@ mat4 MatrixFromQuat(float4 q) {
 	result.e[15] = 1.0f;
 
 	return result;
+}
+
+mat4 Inverse(mat4 m) {
+	float Coef00 = m.e[10] * m.e[15] - m.e[14] * m.e[11];
+	float Coef02 = m.e[6] * m.e[15] - m.e[14] * m.e[7];
+	float Coef03 = m.e[6] * m.e[11] - m.e[10] * m.e[7];
+
+	float Coef04 = m.e[9] * m.e[15] - m.e[13] * m.e[11];
+	float Coef06 = m.e[5] * m.e[15] - m.e[13] * m.e[7];
+	float Coef07 = m.e[5] * m.e[11] - m.e[9] * m.e[7];
+
+	float Coef08 = m.e[9] * m.e[14] - m.e[13] * m.e[10];
+	float Coef10 = m.e[5] * m.e[14] - m.e[13] * m.e[6];
+	float Coef11 = m.e[5] * m.e[10] - m.e[9] * m.e[6];
+
+	float Coef12 = m.e[8] * m.e[15] - m.e[12] * m.e[11];
+	float Coef14 = m.e[4] * m.e[15] - m.e[12] * m.e[7];
+	float Coef15 = m.e[4] * m.e[11] - m.e[8] * m.e[7];
+
+	float Coef16 = m.e[8] * m.e[14] - m.e[12] * m.e[10];
+	float Coef18 = m.e[4] * m.e[14] - m.e[12] * m.e[6];
+	float Coef19 = m.e[4] * m.e[10] - m.e[8] * m.e[6];
+
+	float Coef20 = m.e[8] * m.e[13] - m.e[12] * m.e[9];
+	float Coef22 = m.e[4] * m.e[13] - m.e[12] * m.e[5];
+	float Coef23 = m.e[4] * m.e[9] - m.e[8] * m.e[5];
+
+	float4 Fac0{ Coef00, Coef00, Coef02, Coef03 };
+	float4 Fac1{ Coef04, Coef04, Coef06, Coef07 };
+	float4 Fac2{ Coef08, Coef08, Coef10, Coef11 };
+	float4 Fac3{ Coef12, Coef12, Coef14, Coef15 };
+	float4 Fac4{ Coef16, Coef16, Coef18, Coef19 };
+	float4 Fac5{ Coef20, Coef20, Coef22, Coef23 };
+
+	float4 Vec0{ m.e[4], m.e[0], m.e[0], m.e[0] };
+	float4 Vec1{ m.e[5], m.e[1], m.e[1], m.e[1] };
+	float4 Vec2{ m.e[6], m.e[2], m.e[2], m.e[2] };
+	float4 Vec3{ m.e[7], m.e[3], m.e[3], m.e[3] };
+
+	float4 Inv0{ Vec1 * Fac0 - Vec2 * Fac1 + Vec3 * Fac2 };
+	float4 Inv1{ Vec0 * Fac0 - Vec2 * Fac3 + Vec3 * Fac4 };
+	float4 Inv2{ Vec0 * Fac1 - Vec1 * Fac3 + Vec3 * Fac5 };
+	float4 Inv3{ Vec0 * Fac2 - Vec1 * Fac4 + Vec2 * Fac5 };
+
+	float4 SignA{ +1, -1, +1, -1 };
+	float4 SignB{ -1, +1, -1, +1 };
+	mat4 Inverse{ Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB };
+
+	float4 Row0{ Inverse.e[0], Inverse.e[4], Inverse.e[8], Inverse.e[12] };
+
+	float4 Dot0{ m.v[0] * Row0 };
+	float Dot1 = (Dot0.x + Dot0.y) + (Dot0.z + Dot0.w);
+
+	float OneOverDeterminant = 1.0f / Dot1;
+
+	return Mul(Inverse, OneOverDeterminant);
+}
+
+mat4 Mul(mat4 a, float b) {
+	return mat4{
+		a.e[0] * b,
+		a.e[1] * b,
+		a.e[2] * b,
+		a.e[3] * b,
+		a.e[4] * b,
+		a.e[5] * b,
+		a.e[6] * b,
+		a.e[7] * b,
+		a.e[8] * b,
+		a.e[9] * b,
+		a.e[10] * b,
+		a.e[11] * b,
+		a.e[12] * b,
+		a.e[13] * b,
+		a.e[14] * b,
+		a.e[15] * b,
+	};
 }

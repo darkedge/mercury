@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 // TODO: Can we do Right-handed Z-up?
 
 union float2 {
@@ -332,6 +333,7 @@ union mat4 {
 
 mat4 Mul(mat4 a, mat4 b);
 float4 Mul(mat4 a, float4 b);
+mat4 Mul(mat4 a, float b);
 float3 Cross(float3 a, float3 b);
 float3 QMul(float4 a, float3 b);
 
@@ -359,3 +361,4 @@ float3 Cos(float3 v);
 float3 Sin(float3 v);
 mat4 Transpose(mat4 m);
 mat4 MatrixFromQuat(float4 q);
+mat4 Inverse(mat4 m);

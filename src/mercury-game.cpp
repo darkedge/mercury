@@ -12,7 +12,7 @@ static GLuint m_colorBuffer = 0;
 static GLuint m_texCoordBuffer = 0;
 static GLuint m_indexBuffer = 0;
 static size_t m_numTris = 0;
-static mat4 m_projection;
+static mat4 s_projection;
 
 static float3 s_playerPosition;
 static float4 s_playerRotation;
@@ -159,7 +159,7 @@ void Init() {
 
 	InitSphere();
 
-	m_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
+	s_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
 
 	InitGBuffer();
 }
@@ -221,51 +221,52 @@ void Tick() {
 		}
 	}
 
-	// bind camera uniform
-
-	// bind program
-	BindGeometryProgram();
-
-	// set mvp matrix
-	mat4 model = Translation(float3{0.0f, 0.0f, -3.0f});
-
-	mat4 translate = Translation(-s_playerPosition);
-	mat4 rotate = Transpose(MatrixFromQuat(s_playerRotation));
-	mat4 view = Mul(rotate, translate);
-	//mat4 mvp = m_projection * view * model;
-	mat4 mvp = Mul(Mul(m_projection, view), model);
-	SetGeometryProgramConstants(mvp, model);
-
-
-
+	mat4 view;
 	// Geometry pass
+	{
+		BindGeometryProgram();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
+		glDepthMask(GL_TRUE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		// render sphere
+		{
+			mat4 model = Translation(float3{ 0.0f, 0.0f, -3.0f });
+			mat4 translate = Translation(-s_playerPosition);
+			mat4 rotate = Transpose(MatrixFromQuat(s_playerRotation));
+			view = Mul(rotate, translate);
+			mat4 mvp = Mul(Mul(s_projection, view), model);
+			SetGeometryProgramConstants(mvp, model);
+			GL_TRY(glBindVertexArray(m_vertexArray));
+			GL_TRY(glDrawElements(GL_TRIANGLES, (GLsizei)(m_numTris * 3), GL_UNSIGNED_INT, 0));
+			GL_TRY(glBindVertexArray(0));
+		}
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-
-
-
-
-	// render sphere
-	GL_TRY(glBindVertexArray(m_vertexArray));
-	GL_TRY(glDrawElements(GL_TRIANGLES, (GLsizei)(m_numTris * 3), GL_UNSIGNED_INT, 0));
-	GL_TRY(glBindVertexArray(0));
-
-
-
-
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+	}
 
 
+	// Begin light pass
+	{
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
 
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_gbuffer.fbo);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
+	// IBL pass
+	{
+		BindIBLProgram();
+		SetIBLProgramConstants(Inverse(view), Inverse(s_projection));
+		// Render screen quad
+	}
 
-
-	// Light pass
 #if 1
 	// Clear default FBO (screen)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
