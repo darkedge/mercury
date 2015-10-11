@@ -78,6 +78,13 @@ bool _FindProgramErrors(GLuint program, GLenum type)
 	return false;
 }
 
+void _Finalize(GLuint program) {
+	glLinkProgram(program);
+	_FindProgramErrors(program, GL_LINK_STATUS);
+	glValidateProgram(program);
+	_FindProgramErrors(program, GL_VALIDATE_STATUS);
+}
+
 /************************************************************************/
 /* Geometry program                                                     */
 /************************************************************************/
@@ -94,10 +101,7 @@ void LoadGeometryProgram() {
 	s_geometryProgram.program = glCreateProgram();
 	s_geometryProgram.vertex = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
 	s_geometryProgram.fragment = _AttachShaderFromFile(s_geometryProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
-	glLinkProgram(s_geometryProgram.program);
-	_FindProgramErrors(s_geometryProgram.program, GL_LINK_STATUS);
-	glValidateProgram(s_geometryProgram.program);
-	_FindProgramErrors(s_geometryProgram.program, GL_VALIDATE_STATUS);
+	_Finalize(s_geometryProgram.program);
 
 	// get uniforms
 	s_geometryProgram.u_mvp = glGetUniformLocation(s_geometryProgram.program, "mvp_matrix");
@@ -127,10 +131,7 @@ void LoadIBLProgram() {
 	s_iblProgram.program = glCreateProgram();
 	s_iblProgram.vertex = _AttachShaderFromFile(s_iblProgram.program, "../../assets/program.vert", GL_VERTEX_SHADER);
 	s_iblProgram.fragment = _AttachShaderFromFile(s_iblProgram.program, "../../assets/program.frag", GL_FRAGMENT_SHADER);
-	glLinkProgram(s_iblProgram.program);
-	_FindProgramErrors(s_iblProgram.program, GL_LINK_STATUS);
-	glValidateProgram(s_iblProgram.program);
-	_FindProgramErrors(s_iblProgram.program, GL_VALIDATE_STATUS);
+	_Finalize(s_iblProgram.program);
 
 	// get uniforms
 }
