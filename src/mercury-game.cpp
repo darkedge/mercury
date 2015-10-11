@@ -6,18 +6,21 @@
 
 #define KL_V(t) (1 - (t))
 
-static GLuint m_vertexArray = 0;
-static GLuint m_vertexBuffer = 0;
-static GLuint m_colorBuffer = 0;
-static GLuint m_texCoordBuffer = 0;
-static GLuint m_indexBuffer = 0;
-static size_t m_numTris = 0;
+static struct {
+	GLuint vertexArray = 0;
+	GLuint vertexBuffer = 0;
+	GLuint colorBuffer = 0;
+	GLuint texCoordBuffer = 0;
+	GLuint indexBuffer = 0;
+	size_t numTris = 0;
+} s_sphere;
+
 static mat4 s_projection;
 
 static float3 s_playerPosition;
 static float4 s_playerRotation;
 
-struct GBuffer {
+static struct {
 	GLuint fbo = 0;
 	GLuint renderTarget0 = 0;
 	GLuint renderTarget1 = 0;
@@ -117,36 +120,36 @@ void InitSphere() {
 	}
 
 	// Create VAO
-	GL_TRY(glGenVertexArrays(1, &m_vertexArray));
-	GL_TRY(glBindVertexArray(m_vertexArray));
+	GL_TRY(glGenVertexArrays(1, &s_sphere.vertexArray));
+	GL_TRY(glBindVertexArray(s_sphere.vertexArray));
 
 	// Position buffer
-	GL_TRY(glGenBuffers(1, &m_vertexBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer));
+	GL_TRY(glGenBuffers(1, &s_sphere.vertexBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.vertexBuffer));
 	if (m_positions.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(float3), m_positions.data(), GL_STATIC_DRAW));
 	GL_TRY(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(0));
 
 	// Normal buffer
-	GL_TRY(glGenBuffers(1, &m_colorBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_colorBuffer));
+	GL_TRY(glGenBuffers(1, &s_sphere.colorBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.colorBuffer));
 	if (m_normals.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(float3), m_normals.data(), GL_STATIC_DRAW));
 	GL_TRY(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(1));
 
 	// Texcoord buffer
-	GL_TRY(glGenBuffers(1, &m_texCoordBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_texCoordBuffer));
+	GL_TRY(glGenBuffers(1, &s_sphere.texCoordBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.texCoordBuffer));
 	if (m_texcoords.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_texcoords.size() * sizeof(float2), m_texcoords.data(), GL_STATIC_DRAW));
 	GL_TRY(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(2));
 
 	// Index buffer
-	GL_TRY(glGenBuffers(1, &m_indexBuffer));
-	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer));
+	GL_TRY(glGenBuffers(1, &s_sphere.indexBuffer));
+	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_sphere.indexBuffer));
 	if (m_indices.size() > 0) GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(int32_t), m_indices.data(), GL_STATIC_DRAW));
 
-	m_numTris = m_indices.size() / 3;
+	s_sphere.numTris = m_indices.size() / 3;
 
 	// Unbind
 	GL_TRY(glBindVertexArray(0));
@@ -240,8 +243,8 @@ void Tick() {
 			view = Mul(rotate, translate);
 			mat4 mvp = Mul(Mul(s_projection, view), model);
 			SetGeometryProgramConstants(mvp, model);
-			GL_TRY(glBindVertexArray(m_vertexArray));
-			GL_TRY(glDrawElements(GL_TRIANGLES, (GLsizei)(m_numTris * 3), GL_UNSIGNED_INT, 0));
+			GL_TRY(glBindVertexArray(s_sphere.vertexArray));
+			GL_TRY(glDrawElements(GL_TRIANGLES, (GLsizei)(s_sphere.numTris * 3), GL_UNSIGNED_INT, 0));
 			GL_TRY(glBindVertexArray(0));
 		}
 
