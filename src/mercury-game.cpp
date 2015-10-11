@@ -19,7 +19,10 @@ static float4 s_playerRotation;
 
 struct GBuffer {
 	GLuint fbo = 0;
-	GLuint textures[4] = {};
+	GLuint renderTarget0 = 0;
+	GLuint renderTarget1 = 0;
+	GLuint renderTarget2 = 0;
+	GLuint renderTarget3 = 0;
 	GLuint depthTexture = 0;
 } s_gbuffer;
 
@@ -29,16 +32,33 @@ void InitGBuffer() {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
 
 	// Create the gbuffer textures
-	glGenTextures(4, s_gbuffer.textures);
-	glGenTextures(1, &s_gbuffer.depthTexture);
 
-	for (int32_t i = 0 ; i < 4; i++) {
-	   glBindTexture(GL_TEXTURE_2D, s_gbuffer.textures[i]);
-	   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGB, GL_FLOAT, NULL);
-	   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_gbuffer.textures[i], 0);
-	}
+	// Position
+	glGenTextures(1, &s_gbuffer.renderTarget0);
+	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGB, GL_FLOAT, NULL);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_gbuffer.renderTarget0, 0);
+
+	// Diffuse
+	glGenTextures(1, &s_gbuffer.renderTarget1);
+	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGB, GL_FLOAT, NULL);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, s_gbuffer.renderTarget1, 0);
+
+	// Normal
+	glGenTextures(1, &s_gbuffer.renderTarget2);
+	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGB, GL_FLOAT, NULL);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, s_gbuffer.renderTarget2, 0);
+
+	// Texcoord
+	glGenTextures(1, &s_gbuffer.renderTarget3);
+	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget3);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGB, GL_FLOAT, NULL);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, s_gbuffer.renderTarget3, 0);
 
 	// depth
+	glGenTextures(1, &s_gbuffer.depthTexture);
 	glBindTexture(GL_TEXTURE_2D, s_gbuffer.depthTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, GetWindowWidth(), GetWindowHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT,
 				  NULL);
@@ -257,22 +277,18 @@ void Tick() {
 	GLsizei HalfWidth = (GLsizei)(GetWindowWidth() / 2.0f);
 	GLsizei HalfHeight = (GLsizei)(GetWindowHeight() / 2.0f);
 
-	//m_gbuffer.SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_POSITION);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					0, 0, HalfWidth, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-	//m_gbuffer.SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_DIFFUSE);
 	glReadBuffer(GL_COLOR_ATTACHMENT1);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					0, HalfHeight, HalfWidth, GetWindowHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-	//m_gbuffer.SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_NORMAL);
 	glReadBuffer(GL_COLOR_ATTACHMENT2);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					HalfWidth, HalfHeight, GetWindowWidth(), GetWindowHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-	//m_gbuffer.SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_TEXCOORD);
 	glReadBuffer(GL_COLOR_ATTACHMENT3);
 	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
 					HalfWidth, 0, GetWindowWidth(), HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR); 
