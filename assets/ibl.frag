@@ -1,9 +1,19 @@
 #version 450 core
 
-uniform sampler2D RT0;
+//      |-------------------------------------------|
+// RT0: |             depth              | stencil  | 32 bits
+//      |-------------------------------------------|
+// RT1: |      normal.r       |      normal.g       | 32 bits
+//      |-------------------------------------------|
+// RT2: | albedo.r | albedo.g | albedo.b | emissive | 32 bits
+//      |-------------------------------------------|
+// RT3: |  gloss   |  metal   |    -     |    -     | 32 bits
+//      |-------------------------------------------|
+
+uniform usampler2D RT0;
 uniform sampler2D RT1;
-uniform sampler2D RT2;
-uniform sampler2D RT3;
+uniform usampler2D RT2;
+uniform usampler2D RT3;
 uniform samplerCube CubeMap;
 
 uniform mat4 InverseView;
@@ -52,9 +62,12 @@ void main( void ) {
 	vec3 ambient = textureLod(CubeMap, normal, float(NUM_ROUGHNESS_MIPS - 1)).rgb;
 	reflCol *= mix(vec3(1,1,1), albedo, metalness);
 	vec3 col = mix(albedo * ambient, reflCol, reflectivity);
+	#if 0
 	if (depth == 1.0) {
+		// If infinitely far away, use albedo directly
 		col = rt2.rgb;
 	}
+	#endif
 	col.x = pow(col.x, 1.0 / 2.2);
 	col.y = pow(col.y, 1.0 / 2.2);
 	col.z = pow(col.z, 1.0 / 2.2);

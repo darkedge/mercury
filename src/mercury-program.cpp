@@ -1,6 +1,7 @@
 #include "mercury-program.h"
 
 GLuint _AttachShaderFromFile(GLuint program, const char *file, GLenum shaderType) {
+	printf("Opening file: %s\n", file);
 	size_t size = 0;
 #pragma warning(suppress:4996)
 	FILE *f = fopen(file, "rb");
@@ -101,6 +102,11 @@ static struct {
 	GLuint program = 0;
 	GLuint vertex = 0;
 	GLuint fragment = 0;
+	GLint u_rt0 = -1;
+	GLint u_rt1 = -1;
+	GLint u_rt2 = -1;
+	GLint u_rt3 = -1;
+	GLint u_cubeMap = -1;
 	GLint u_invView = -1;
 	GLint u_invProj = -1;
 } s_iblProgram;
@@ -124,6 +130,10 @@ void LoadPrograms() {
 		_Finalize(s_iblProgram.program);
 
 		// get uniforms
+		s_iblProgram.u_rt0 = glGetUniformLocation(s_iblProgram.program, "RT0");
+		s_iblProgram.u_rt1 = glGetUniformLocation(s_iblProgram.program, "RT1");
+		s_iblProgram.u_rt2 = glGetUniformLocation(s_iblProgram.program, "RT2");
+		s_iblProgram.u_rt3 = glGetUniformLocation(s_iblProgram.program, "RT3");
 		s_iblProgram.u_invView = glGetUniformLocation(s_iblProgram.program, "invView");
 		s_iblProgram.u_invProj = glGetUniformLocation(s_iblProgram.program, "invProj");
 	}
@@ -150,7 +160,23 @@ void BindIBLProgram() {
 	glUseProgram(s_iblProgram.program);
 }
 
-void SetIBLProgramConstants(const mat4 &invView, const mat4 &invProj) {
+void SetIBLProgramConstants(GLint r0, GLint r1, GLint r2, GLint r3, const mat4 &invView, const mat4 &invProj) {
+	glUniform1i(s_iblProgram.u_rt0, r0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, r0);
+
+	glUniform1i(s_iblProgram.u_rt1, r1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, r1);
+
+	glUniform1i(s_iblProgram.u_rt2, r2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, r2);
+
+	glUniform1i(s_iblProgram.u_rt3, r3);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, r3);
+
 	GL_TRY(glUniformMatrix4fv(s_iblProgram.u_invView, 1, GL_FALSE, &invView.e[0]));
 	GL_TRY(glUniformMatrix4fv(s_iblProgram.u_invProj, 1, GL_FALSE, &invProj.e[0]));
 }

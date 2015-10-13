@@ -2,11 +2,11 @@
 
 layout (location = 0) in vec2 Position;
 
-out vec2 Uvs;
+out vec2 texcoord;
 
 void main(void) {
-	// [0 ... 1]
+	// [-1 ... 1]
 	gl_Position = vec4(Position.xy, 0.0, 1.0);
-
-	Uvs = Position;
+	// Map to [0 ... 1]
+	texcoord = Position * 0.5 + 0.5;
 }
