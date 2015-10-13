@@ -161,19 +161,19 @@ void BindIBLProgram() {
 }
 
 void SetIBLProgramConstants(GLint r0, GLint r1, GLint r2, GLint r3, const mat4 &invView, const mat4 &invProj) {
-	glUniform1i(s_iblProgram.u_rt0, r0);
+	glUniform1i(s_iblProgram.u_rt0, 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, r0);
 
-	glUniform1i(s_iblProgram.u_rt1, r1);
+	glUniform1i(s_iblProgram.u_rt1, 1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, r1);
 
-	glUniform1i(s_iblProgram.u_rt2, r2);
+	glUniform1i(s_iblProgram.u_rt2, 2);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, r2);
 
-	glUniform1i(s_iblProgram.u_rt3, r3);
+	glUniform1i(s_iblProgram.u_rt3, 3);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, r3);
 
