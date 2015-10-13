@@ -10,10 +10,10 @@
 // RT3: |  gloss   |  metal   |    -     |    -     | 32 bits
 //      |-------------------------------------------|
 
-uniform usampler2D RT0;
+uniform sampler2D RT0;
 uniform sampler2D RT1;
-uniform usampler2D RT2;
-uniform usampler2D RT3;
+uniform sampler2D RT2;
+uniform sampler2D RT3;
 uniform samplerCube CubeMap;
 
 uniform mat4 InverseView;
@@ -61,7 +61,7 @@ void main( void ) {
 
 	vec3 ambient = textureLod(CubeMap, normal, float(NUM_ROUGHNESS_MIPS - 1)).rgb;
 	reflCol *= mix(vec3(1,1,1), albedo, metalness);
-	vec3 col = mix(albedo * ambient, reflCol, reflectivity);
+	vec3 col = mix(albedo /* * ambient */, reflCol, reflectivity);
 	#if 0
 	if (depth == 1.0) {
 		// If infinitely far away, use albedo directly

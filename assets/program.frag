@@ -48,5 +48,5 @@ void main( void ) {
 	RT2.rgb = col.rgb;
 	RT2.a = 255.0; // Emissive
 	RT3.r = 16.0 / 255.0; // Gloss
-	RT3.g = 32.0 / 255.0; // Metallic
+	RT3.g = 0.0 / 255.0; // Metallic
 }

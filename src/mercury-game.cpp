@@ -38,7 +38,7 @@ static struct {
 void _InitGBuffer() {
 	 // Create the FBO
 	glGenFramebuffers(1, &s_gbuffer.fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, s_gbuffer.fbo);
 
 	// Create the gbuffer textures
 
@@ -57,29 +57,29 @@ void _InitGBuffer() {
 	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget0);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, GetWindowWidth(), GetWindowHeight(), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_gbuffer.renderTarget0, 0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, s_gbuffer.renderTarget0, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_gbuffer.renderTarget0, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, s_gbuffer.renderTarget0, 0);
 
 	// RT1
 	glGenTextures(1, &s_gbuffer.renderTarget1);
 	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, GetWindowWidth(), GetWindowHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_gbuffer.renderTarget1, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s_gbuffer.renderTarget1, 0);
 
 	// RT2
 	glGenTextures(1, &s_gbuffer.renderTarget2);
 	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget2);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, GetWindowWidth(), GetWindowHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, s_gbuffer.renderTarget2, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, s_gbuffer.renderTarget2, 0);
 
 	// RT3
 	glGenTextures(1, &s_gbuffer.renderTarget3);
 	glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget3);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, GetWindowWidth(), GetWindowHeight(), 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, s_gbuffer.renderTarget3, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, s_gbuffer.renderTarget3, 0);
 
 	GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 	glDrawBuffers(3, DrawBuffers);
@@ -93,7 +93,7 @@ void _InitGBuffer() {
 	}
 
 	// restore default FBO
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void _InitSphere() {
@@ -312,16 +312,7 @@ void Tick() {
 		glBlendFunc(GL_ONE, GL_ONE);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-#if 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget1);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget2);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, s_gbuffer.renderTarget3);
-#endif
+		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
@@ -335,37 +326,6 @@ void Tick() {
 		GL_TRY(glDrawElements(GL_TRIANGLES, (GLsizei)(s_quad.numTris * 3), GL_UNSIGNED_INT, 0));
 		GL_TRY(glBindVertexArray(0));
 	}
-
-#if 0
-	// Clear default FBO (screen)
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Bind G-buffer
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_gbuffer.fbo);
-	GLsizei HalfWidth = (GLsizei)(GetWindowWidth() / 2.0f);
-	GLsizei HalfHeight = (GLsizei)(GetWindowHeight() / 2.0f);
-
-	// top-left - position
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
-					0, HalfHeight, HalfWidth, GetWindowHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	// top-right - diffuse
-	glReadBuffer(GL_COLOR_ATTACHMENT1);
-	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
-					HalfWidth, HalfHeight, GetWindowWidth(), GetWindowHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	// bottom-left - normal
-	glReadBuffer(GL_COLOR_ATTACHMENT2);
-	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
-		0, 0, HalfWidth, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-	// bottom-right - texcoord
-	glReadBuffer(GL_COLOR_ATTACHMENT3);
-	glBlitFramebuffer(0, 0, GetWindowWidth(), GetWindowHeight(),
-					HalfWidth, 0, GetWindowWidth(), HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR); 
-#endif
 }
 
 void Destroy() {
