@@ -360,28 +360,10 @@ void Tick() {
 			}
 		}
 		ImGui::EndMainMenuBar();
-#if 0
-		static bool show_test_window = true;
-		ImGui::Begin("Console", &show_test_window, ImGuiWindowFlags_MenuBar);
-		{
-			
-			ImGui::BeginMenuBar();
-			if (ImGui::BeginMenu("Filter output", true)) {
-				static bool opengloutput = false;
-				if (ImGui::MenuItem("OpenGL", nullptr, &opengloutput)) {
-
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-
-			
-		}
-		ImGui::End();
-#endif
-		static bool drawLog = true;
 		DrawLog();
+#if 0
 		ImGui::ShowTestWindow();
+#endif
 
 		ImGui::Render();
 	}
