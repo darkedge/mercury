@@ -58,48 +58,47 @@ void CALLBACK debugCallbackARB( GLenum source, GLenum type, GLuint id, GLenum se
 	GLsizei length, const GLchar *message, GLvoid *userParam ) {
 	if (type == GL_DEBUG_TYPE_OTHER) return;
 
-	printf("Type: ");
+	Log("Type: ");
 	switch (type)
 	{
 	case GL_DEBUG_TYPE_ERROR:
-		printf("ERROR");
+		Log("ERROR");
 		break;
 	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-		printf("DEPRECATED_BEHAVIOR");
+		Log("DEPRECATED_BEHAVIOR");
 		break;
 	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-		printf("UNDEFINED_BEHAVIOR");
+		Log("UNDEFINED_BEHAVIOR");
 		break;
 	case GL_DEBUG_TYPE_PORTABILITY:
-		printf("PORTABILITY");
+		Log("PORTABILITY");
 		break;
 	case GL_DEBUG_TYPE_PERFORMANCE:
-		printf("PERFORMANCE");
+		Log("PERFORMANCE");
 		break;
 	case GL_DEBUG_TYPE_OTHER:
-		printf("OTHER");
+		Log("OTHER");
 		break;
 	}
-	printf(" - id: %d", id);
-	printf(" - Severity: ");
+	Log(" - id: %d", id);
+	Log(" - Severity: ");
 	switch (severity)
 	{
 	case GL_DEBUG_SEVERITY_LOW:
-		printf("LOW");
+		Log("LOW");
 		break;
 	case GL_DEBUG_SEVERITY_MEDIUM:
-		printf("MEDIUM");
+		Log("MEDIUM");
 		break;
 	case GL_DEBUG_SEVERITY_HIGH:
-		printf("HIGH");
+		Log("HIGH");
 		break;
 	}
-	printf(" - %s\n", message);
+	Log(" - %s\n", message);
 }
 
 void GlfwErrorCallback( int32_t, const char *description ) {
-	fputs( description, stderr );
-	fputs( "\n", stderr );
+	Log("%s\n", description);
 }
 
 void GlfwKeyCallBack( GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mods ) {
@@ -113,6 +112,8 @@ void GlfwKeyCallBack( GLFWwindow* window, int32_t key, int32_t scancode, int32_t
 	if ( action == GLFW_RELEASE ) {
 		Input::SetKey( key, false );
 	}
+
+	ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
 }
 
 void GlfwMouseButtonCallback( GLFWwindow *window, int32_t button, int32_t action, int32_t mods ) {
@@ -122,14 +123,18 @@ void GlfwMouseButtonCallback( GLFWwindow *window, int32_t button, int32_t action
 	if ( action == GLFW_RELEASE ) {
 		Input::SetMouseButton( button, false );
 	}
+
+	if(!Input::IsMouseGrabbed()) {
+		ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
+	}
 }
 
 void GlfwScrollCallback( GLFWwindow *window, double xoffset, double yoffset ) {
-	// TODO: GUI
+	ImGui_ImplGlfwGL3_ScrollCallback(window, xoffset, yoffset);
 }
 
 void GlfwCharCallback( GLFWwindow *window, uint32_t codepoint ) {
-	// TODO: GUI
+	ImGui_ImplGlfwGL3_CharCallback(window, codepoint);
 }
 
 void GlfwCursorPosCallback( GLFWwindow *window, double xpos, double ypos ) {
@@ -162,10 +167,15 @@ void EnterWindowLoop() {
 	glfwDestroyWindow( s_window );
 	glfwTerminate();
 
-	//std::exit( EXIT_SUCCESS );
+	std::exit( EXIT_SUCCESS );
 }
 
-void main() {
+int CALLBACK WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE hPrevInstance,
+	_In_ LPSTR     lpCmdLine,
+	_In_ int       nCmdShow
+	) {
 	glfwSetErrorCallback( GlfwErrorCallback );
 
 	if ( glfwInit() ) {
@@ -185,7 +195,7 @@ void main() {
 		glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
 		glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
 
-		ImGui_ImplGlfwGL3_Init(s_window, true);
+		ImGui_ImplGlfwGL3_Init(s_window, false);
 
 		// Sync to monitor refresh rate
 		glfwSwapInterval( 1 );
@@ -194,7 +204,7 @@ void main() {
 		/* OpenGL                                                               */
 		/************************************************************************/
 		if ( gladLoadGLLoader((GLADloadproc) glfwGetProcAddress) ) {
-			printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
+			Log("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
 			glEnable( GL_BLEND );
 			glEnable( GL_MULTISAMPLE );
 			glEnable( GL_CULL_FACE );
@@ -212,11 +222,11 @@ void main() {
 
 		} else {
 			printf( "Failed to init glad!\n" );
-			// std::exit( EXIT_FAILURE );
+			std::exit( EXIT_FAILURE );
 		}
 
 	} else {
 		printf( "Failed to init GLFW!\n" );
-		// std::exit( EXIT_FAILURE );
+		std::exit( EXIT_FAILURE );
 	}
 }

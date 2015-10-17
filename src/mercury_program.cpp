@@ -1,7 +1,7 @@
 #include "mercury_program.h"
 
 GLuint _AttachShaderFromFile(GLuint program, const char *file, GLenum shaderType) {
-	printf("Opening file: %s\n", file);
+	Log("Opening file: %s\n", file);
 	size_t size = 0;
 #pragma warning(suppress:4996)
 	FILE *f = fopen(file, "rb");

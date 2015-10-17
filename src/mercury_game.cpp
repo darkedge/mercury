@@ -290,7 +290,7 @@ void Tick() {
 	// Geometry pass
 	{
 		BindGeometryProgram();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_gbuffer.fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, s_gbuffer.fbo);
 		glDepthMask(GL_TRUE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -321,9 +321,19 @@ void Tick() {
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_ONE, GL_ONE);
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	// Render point lights
+	{
+
+	}
+
+	// Render directional light
+	{
+
 	}
 
 	// Composite pass
@@ -337,11 +347,42 @@ void Tick() {
 		GL_TRY(glBindVertexArray(0));
 	}
 
-	// Render ImGui
+	// Render ImGui on top
 	{
-		bool show_test_window = true;
 		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-		ImGui::ShowTestWindow(&show_test_window);
+		ImGui::BeginMainMenuBar();
+		{
+			if (ImGui::BeginMenu("File", true)) {
+				if (ImGui::MenuItem("Quit")) {
+					glfwSetWindowShouldClose(GetWindow(), GL_TRUE);
+				}
+				ImGui::EndMenu();
+			}
+		}
+		ImGui::EndMainMenuBar();
+#if 0
+		static bool show_test_window = true;
+		ImGui::Begin("Console", &show_test_window, ImGuiWindowFlags_MenuBar);
+		{
+			
+			ImGui::BeginMenuBar();
+			if (ImGui::BeginMenu("Filter output", true)) {
+				static bool opengloutput = false;
+				if (ImGui::MenuItem("OpenGL", nullptr, &opengloutput)) {
+
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+
+			
+		}
+		ImGui::End();
+#endif
+		static bool drawLog = true;
+		DrawLog();
+		ImGui::ShowTestWindow();
+
 		ImGui::Render();
 	}
 }

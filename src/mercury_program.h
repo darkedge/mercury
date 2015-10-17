@@ -1,4 +1,6 @@
 #pragma once
+#include "mercury_math.h"
+#include "glad/glad.h"
 
 struct PointLight {
 	float3 origin;
