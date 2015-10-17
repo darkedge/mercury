@@ -1,5 +1,5 @@
 #pragma once
-#include "mercury-math.h"
+#include "mercury_math.h"
 #include <cstdint>
 
 namespace Input {

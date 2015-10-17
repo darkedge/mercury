@@ -1,4 +1,4 @@
-#include "mercury-input.h"
+#include "mercury_input.h"
 #include "GLFW/glfw3.h"
 #include "mercury.h"
 #include <cstring>

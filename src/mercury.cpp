@@ -1,5 +1,5 @@
 #include <codeanalysis/warnings.h>
-#pragma warning( push )
+#pragma warning( push, 0 )
   #pragma warning( disable : ALL_CODE_ANALYSIS_WARNINGS )
   
   #include "glad/glad.h"
@@ -11,13 +11,20 @@
   #include "stb_image.h"
   
   #include <stdint.h>
+
+  // ImGui
+  #include "imgui.cpp"
+  #include "imgui_demo.cpp"
+  #include "imgui_draw.cpp"
 #pragma warning( pop )
 
 #include "mercury.h"
-#include "mercury-input.cpp"
-#include "mercury-game.cpp"
-#include "mercury-program.cpp"
-#include "mercury-math.cpp"
+
+#include "mercury_imgui.cpp"
+#include "mercury_input.cpp"
+#include "mercury_game.cpp"
+#include "mercury_program.cpp"
+#include "mercury_math.cpp"
 
 // Tell Optimus to use the high-performance NVIDIA processor
 // option if it's on auto-select (we cannot override it)
@@ -49,7 +56,45 @@ inline int32_t GetWindowHeight() {
 
 void CALLBACK debugCallbackARB( GLenum source, GLenum type, GLuint id, GLenum severity,
 	GLsizei length, const GLchar *message, GLvoid *userParam ) {
-	printf( "%s\n", message );
+	if (type == GL_DEBUG_TYPE_OTHER) return;
+
+	printf("Type: ");
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:
+		printf("ERROR");
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		printf("DEPRECATED_BEHAVIOR");
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		printf("UNDEFINED_BEHAVIOR");
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY:
+		printf("PORTABILITY");
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE:
+		printf("PERFORMANCE");
+		break;
+	case GL_DEBUG_TYPE_OTHER:
+		printf("OTHER");
+		break;
+	}
+	printf(" - id: %d", id);
+	printf(" - Severity: ");
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_LOW:
+		printf("LOW");
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:
+		printf("MEDIUM");
+		break;
+	case GL_DEBUG_SEVERITY_HIGH:
+		printf("HIGH");
+		break;
+	}
+	printf(" - %s\n", message);
 }
 
 void GlfwErrorCallback( int32_t, const char *description ) {
@@ -139,6 +184,8 @@ void main() {
 		glfwSetCharCallback( s_window, GlfwCharCallback );
 		glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
 		glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
+
+		ImGui_ImplGlfwGL3_Init(s_window, true);
 
 		// Sync to monitor refresh rate
 		glfwSwapInterval( 1 );

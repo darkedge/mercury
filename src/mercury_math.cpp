@@ -1,4 +1,4 @@
-#include "mercury-math.h"
+#include "mercury_math.h"
 #pragma once
 
 mat4 Mul(mat4 a, mat4 b) {

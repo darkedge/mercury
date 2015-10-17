@@ -1,6 +1,11 @@
-#include "mercury-game.h"
-#include "mercury-program.h"
-#include "mercury-math.h"
+#include "mercury_game.h"
+#include "mercury.h"
+#include "imgui.h"
+#include "GLFW/glfw3.h"
+#include "mercury_program.h"
+#include "mercury_math.h"
+#include "mercury_input.h"
+#include "mercury_imgui.h"
 #include "glad/glad.h"
 #include <vector>
 
@@ -35,8 +40,135 @@ static struct {
 	GLuint renderTarget3 = 0;
 } s_gbuffer;
 
-void _InitGBuffer() {
-	 // Create the FBO
+static GLuint texID;
+
+void Init() {
+	LoadPrograms();
+
+	/************************************************************************/
+	/* Create sphere mesh                                                   */
+	/************************************************************************/
+	// Create sphere
+	std::vector<float3> m_positions;
+	std::vector<float3> m_normals;
+	std::vector<float2> m_texcoords;
+	std::vector<int32_t> m_indices;
+
+	const int32_t stacks = 50;
+	const int32_t slices = 50;
+	const float radius = 1.0f;
+
+	for (int32_t i = 0; i <= stacks; i++) {
+		// V texture coordinate.
+		float v = i / (float)(stacks);
+		float phi = v * kPi;
+
+		for (int32_t j = 0; j <= slices; j++) {
+			// U texture coordinate.
+			float u = j / (float)(slices);
+			float theta = u * 2.0f * kPi;
+
+			float x = cos(theta) * sin(phi);
+			float y = cos(phi);
+			float z = sin(theta) * sin(phi);
+
+			m_positions.push_back(float3{ x, y, z } *radius);
+			m_normals.push_back(float3{ x, y, z });
+			m_texcoords.push_back(float2{ 1.0f - u, KL_V(1.0f - v) });
+		}
+	}
+
+	for (int32_t i = 0; i < slices * stacks + slices; ++i) {
+		m_indices.insert(m_indices.end(), {
+			i, i + slices + 1, i + slices,
+			i + slices + 1, i, i + 1
+		});
+	}
+
+	// Create VAO
+	GL_TRY(glGenVertexArrays(1, &s_sphere.vertexArray));
+	GL_TRY(glBindVertexArray(s_sphere.vertexArray));
+
+	// Position buffer
+	GL_TRY(glGenBuffers(1, &s_sphere.vertexBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.vertexBuffer));
+	if (m_positions.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(float3), m_positions.data(), GL_STATIC_DRAW));
+	GL_TRY(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+	GL_TRY(glEnableVertexAttribArray(0));
+
+	// Normal buffer
+	GL_TRY(glGenBuffers(1, &s_sphere.colorBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.colorBuffer));
+	if (m_normals.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(float3), m_normals.data(), GL_STATIC_DRAW));
+	GL_TRY(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+	GL_TRY(glEnableVertexAttribArray(1));
+
+	// Texcoord buffer
+	GL_TRY(glGenBuffers(1, &s_sphere.texCoordBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.texCoordBuffer));
+	if (m_texcoords.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_texcoords.size() * sizeof(float2), m_texcoords.data(), GL_STATIC_DRAW));
+	GL_TRY(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
+	GL_TRY(glEnableVertexAttribArray(2));
+
+	// Index buffer
+	GL_TRY(glGenBuffers(1, &s_sphere.indexBuffer));
+	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_sphere.indexBuffer));
+	if (m_indices.size() > 0) GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(int32_t), m_indices.data(), GL_STATIC_DRAW));
+
+	s_sphere.numTris = m_indices.size() / 3;
+
+	// Unbind
+	GL_TRY(glBindVertexArray(0));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+	/************************************************************************/
+	/* Create quad mesh                                                     */
+	/************************************************************************/
+	// Create VAO
+	GL_TRY(glGenVertexArrays(1, &s_quad.vertexArray));
+	GL_TRY(glBindVertexArray(s_quad.vertexArray));
+
+	const GLfloat positions[] = {
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		1.0f, 1.0f,
+		-1.0f, 1.0f,
+	};
+
+	const GLint indices[] = {
+		0, 1, 2, 2, 3, 0,
+	};
+
+	// Position buffer
+	GL_TRY(glGenBuffers(1, &s_quad.vertexBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_quad.vertexBuffer));
+	GL_TRY(glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float2), positions, GL_STATIC_DRAW));
+	GL_TRY(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
+	GL_TRY(glEnableVertexAttribArray(0));
+
+	// Index buffer
+	GL_TRY(glGenBuffers(1, &s_quad.indexBuffer));
+	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_quad.indexBuffer));
+	GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int32_t), indices, GL_STATIC_DRAW));
+
+	s_quad.numTris = 2;
+
+	// Unbind
+	GL_TRY(glBindVertexArray(0));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+
+	/************************************************************************/
+	/* Create perspective matrix                                            */
+	/************************************************************************/
+	s_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
+
+	/************************************************************************/
+	/* Init G-Buffer                                                        */
+	/************************************************************************/
+	// Create the FBO
 	glGenFramebuffers(1, &s_gbuffer.fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, s_gbuffer.fbo);
 
@@ -96,130 +228,8 @@ void _InitGBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void _InitSphere() {
-	// Create sphere
-	std::vector<float3> m_positions;
-	std::vector<float3> m_normals;
-	std::vector<float2> m_texcoords;
-	std::vector<int32_t> m_indices;
-
-	const int32_t stacks = 50;
-	const int32_t slices = 50;
-	const float radius = 1.0f;
-
-	for ( int32_t i = 0; i <= stacks; i++ ) {
-		// V texture coordinate.
-		float v = i / (float) ( stacks );
-		float phi = v * kPi;
-
-		for ( int32_t j = 0; j <= slices; j++ ) {
-			// U texture coordinate.
-			float u = j / (float) ( slices );
-			float theta = u * 2.0f * kPi;
-
-			float x = cos( theta ) * sin( phi );
-			float y = cos( phi );
-			float z = sin( theta ) * sin( phi );
-
-			m_positions.push_back(float3{ x, y, z } * radius);
-			m_normals.push_back(float3{ x, y, z });
-			m_texcoords.push_back(float2{ 1.0f - u, KL_V(1.0f - v) });
-		}
-	}
-
-	for ( int32_t i = 0; i < slices * stacks + slices; ++i ) {
-		m_indices.insert( m_indices.end(), {
-			i, i + slices + 1, i + slices,
-			i + slices + 1, i, i + 1
-		} );
-	}
-
-	// Create VAO
-	GL_TRY(glGenVertexArrays(1, &s_sphere.vertexArray));
-	GL_TRY(glBindVertexArray(s_sphere.vertexArray));
-
-	// Position buffer
-	GL_TRY(glGenBuffers(1, &s_sphere.vertexBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.vertexBuffer));
-	if (m_positions.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(float3), m_positions.data(), GL_STATIC_DRAW));
-	GL_TRY(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-	GL_TRY(glEnableVertexAttribArray(0));
-
-	// Normal buffer
-	GL_TRY(glGenBuffers(1, &s_sphere.colorBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.colorBuffer));
-	if (m_normals.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(float3), m_normals.data(), GL_STATIC_DRAW));
-	GL_TRY(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
-	GL_TRY(glEnableVertexAttribArray(1));
-
-	// Texcoord buffer
-	GL_TRY(glGenBuffers(1, &s_sphere.texCoordBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_sphere.texCoordBuffer));
-	if (m_texcoords.size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, m_texcoords.size() * sizeof(float2), m_texcoords.data(), GL_STATIC_DRAW));
-	GL_TRY(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
-	GL_TRY(glEnableVertexAttribArray(2));
-
-	// Index buffer
-	GL_TRY(glGenBuffers(1, &s_sphere.indexBuffer));
-	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_sphere.indexBuffer));
-	if (m_indices.size() > 0) GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(int32_t), m_indices.data(), GL_STATIC_DRAW));
-
-	s_sphere.numTris = m_indices.size() / 3;
-
-	// Unbind
-	GL_TRY(glBindVertexArray(0));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-}
-
-void _InitQuad() {
-	// Create VAO
-	GL_TRY(glGenVertexArrays(1, &s_quad.vertexArray));
-	GL_TRY(glBindVertexArray(s_quad.vertexArray));
-
-	const GLfloat positions[] = {
-		-1.0f, -1.0f,
-		1.0f, -1.0f,
-		1.0f, 1.0f,
-		-1.0f, 1.0f,
-	};
-
-	const GLint indices[] = {
-		0, 1, 2, 2, 3, 0,
-	};
-
-	// Position buffer
-	GL_TRY(glGenBuffers(1, &s_quad.vertexBuffer));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, s_quad.vertexBuffer));
-	GL_TRY(glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float2), positions, GL_STATIC_DRAW));
-	GL_TRY(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
-	GL_TRY(glEnableVertexAttribArray(0));
-
-	// Index buffer
-	GL_TRY(glGenBuffers(1, &s_quad.indexBuffer));
-	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_quad.indexBuffer));
-	GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int32_t), indices, GL_STATIC_DRAW));
-
-	s_quad.numTris = 2;
-
-	// Unbind
-	GL_TRY(glBindVertexArray(0));
-	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-}
-
-void Init() {
-	LoadPrograms();
-
-	_InitSphere();
-	_InitQuad();
-
-	s_projection = Perspective(60.0f * kDeg2Rad, 16.0f / 9.0f, 0.3f, 1000.0f);
-
-	_InitGBuffer();
-}
-
 void Tick() {
+	ImGui_ImplGlfwGL3_NewFrame();
 	// input
 	{
 		static float2 lastRotation;
@@ -316,18 +326,22 @@ void Tick() {
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	// IBL pass
+	// Composite pass
 	{
-		BindIBLProgram();
-		SetIBLProgramConstants(s_gbuffer.renderTarget0, s_gbuffer.renderTarget1, s_gbuffer.renderTarget2, s_gbuffer.renderTarget3, Inverse(view), Inverse(s_projection));
+		BindCompositeProgram();
+		SetCompositeProgramConstants(s_gbuffer.renderTarget0, s_gbuffer.renderTarget1, s_gbuffer.renderTarget2, s_gbuffer.renderTarget3, Inverse(view), Inverse(s_projection));
 
 		// Render screen quad
 		GL_TRY(glBindVertexArray(s_quad.vertexArray));
 		GL_TRY(glDrawElements(GL_TRIANGLES, (GLsizei)(s_quad.numTris * 3), GL_UNSIGNED_INT, 0));
 		GL_TRY(glBindVertexArray(0));
 	}
-}
 
-void Destroy() {
-	// TODO
+	// Render ImGui
+	{
+		bool show_test_window = true;
+		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+		ImGui::ShowTestWindow(&show_test_window);
+		ImGui::Render();
+	}
 }

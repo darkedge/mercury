@@ -68,6 +68,7 @@ void main( void ) {
 		col = rt2.rgb;
 	}
 	#endif
+	// gamma correction of 2.2?
 	col.x = pow(col.x, 1.0 / 2.2);
 	col.y = pow(col.y, 1.0 / 2.2);
 	col.z = pow(col.z, 1.0 / 2.2);

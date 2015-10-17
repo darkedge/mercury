@@ -1,4 +1,4 @@
-#include "mercury-program.h"
+#include "mercury_program.h"
 
 GLuint _AttachShaderFromFile(GLuint program, const char *file, GLenum shaderType) {
 	printf("Opening file: %s\n", file);
@@ -125,8 +125,8 @@ void LoadPrograms() {
 
 	{
 		s_iblProgram.program = glCreateProgram();
-		s_iblProgram.vertex = _AttachShaderFromFile(s_iblProgram.program, "../../assets/ibl.vert", GL_VERTEX_SHADER);
-		s_iblProgram.fragment = _AttachShaderFromFile(s_iblProgram.program, "../../assets/ibl.frag", GL_FRAGMENT_SHADER);
+		s_iblProgram.vertex = _AttachShaderFromFile(s_iblProgram.program, "../../assets/composite.vert", GL_VERTEX_SHADER);
+		s_iblProgram.fragment = _AttachShaderFromFile(s_iblProgram.program, "../../assets/composite.frag", GL_FRAGMENT_SHADER);
 		_Finalize(s_iblProgram.program);
 
 		// get uniforms
@@ -156,11 +156,11 @@ void SetGeometryProgramConstants(const mat4 &mvp, const mat4 &m) {
 /* Image-based lighting program                                         */
 /************************************************************************/
 
-void BindIBLProgram() {
+void BindCompositeProgram() {
 	glUseProgram(s_iblProgram.program);
 }
 
-void SetIBLProgramConstants(GLint r0, GLint r1, GLint r2, GLint r3, const mat4 &invView, const mat4 &invProj) {
+void SetCompositeProgramConstants(GLint r0, GLint r1, GLint r2, GLint r3, const mat4 &invView, const mat4 &invProj) {
 	glUniform1i(s_iblProgram.u_rt0, 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, r0);
